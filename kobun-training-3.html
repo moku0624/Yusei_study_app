@@ -1,0 +1,3208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古文単語トレーニング</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+            background: linear-gradient(135deg, #f8f6f1 0%, #efe9e0 100%);
+            min-height: 100vh;
+            padding: 12px;
+            color: #2d2520;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+            padding: 24px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar {
+            background: #e8e8e8;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #8b4513 0%, #a0522d 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .quiz-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            font-size: 12px;
+            color: #8b4513;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #f5ede4 0%, #ebe5dc 100%);
+            border-left: 4px solid #8b4513;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .word-ja {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d2520;
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+
+        .word-reading {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .word-category {
+            display: inline-block;
+            background: #8b4513;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .question {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            padding: 12px;
+            background: #fafaf8;
+            border-radius: 6px;
+        }
+
+        /* Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #8b4513;
+            background: #fef9f5;
+        }
+
+        .option.selected {
+            border-color: #8b4513;
+            background: #fef9f5;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-label {
+            min-width: 24px;
+            background: #8b4513;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .option.correct .option-label,
+        .option.correct.disabled .option-label {
+            background: #4caf50;
+        }
+
+        .option.incorrect .option-label {
+            background: #f44336;
+        }
+
+        /* Feedback */
+        .feedback {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        /* Explanation Card */
+        .explanation {
+            background: #f5ede4;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+
+        .explanation-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .explanation-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            min-width: 60px;
+            color: #8b4513;
+        }
+
+        .explanation-text {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #e8e8e8;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .start-screen h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #2d2520;
+        }
+
+        .start-screen p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5ede4 0%, #ebe5dc 100%);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #8b4513;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .result-screen h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #2d2520;
+        }
+
+        .result-details {
+            background: #f5ede4;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 24px 0;
+            font-size: 14px;
+        }
+
+        .result-score {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8b4513;
+        }
+
+        .result-score-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 12px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px 6px 0 0;
+            color: #666;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .difficulty-btn.active {
+            color: #8b4513;
+        }
+
+        .difficulty-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #8b4513;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #2d2520;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            header {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .word-ja {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Streak Counter */
+        .streak {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Daily Goal */
+        .daily-goal {
+            background: #fef9f5;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+
+        .goal-title {
+            font-weight: 600;
+            color: #ff6b00;
+            margin-bottom: 4px;
+        }
+
+        .goal-text {
+            color: #666;
+        }
+
+        /* レベル選択 */
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .level-btn:hover {
+            border-color: #8b4513;
+            color: #8b4513;
+        }
+
+        .level-btn.active {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+            border-color: #8b4513;
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* リトライキュー表示 */
+        .retry-queue {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .retry-queue-title {
+            font-weight: 600;
+            color: #ff6b00;
+            margin-bottom: 6px;
+        }
+
+        .retry-queue-text {
+            color: #333;
+        }
+
+        .retry-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .retry-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 穴埋め問題のスタイル */
+        .fill-in-question {
+            background: #fafaf8;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .blank {
+            background: #fff3e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* 文脈問題のスタイル */
+        .context-question {
+            background: #f5ede4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #8b4513;
+        }
+
+        .context-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .context-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .context-highlight {
+            background: #fff3e0;
+            padding: 2px 4px;
+            font-weight: 600;
+            border-radius: 2px;
+        }
+
+        .context-question-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        /* 誤答トラッキング */
+        .error-tracking {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .error-count {
+            font-weight: 600;
+            color: #c62828;
+        }
+
+        @media (max-width: 480px) {
+            .level-btn {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>古文単語トレーニング</h1>
+            <p class="header-subtitle" id="phaseSubtitle">Phase 1 - 必出60語</p>
+        </header>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-label">今日の学習</div>
+            <div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="dailyProgressFill"></div>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat">
+                        <span class="stat-icon">✅</span>
+                        <span id="dailyCorrect">0</span>問正解
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">📚</span>
+                        <span id="totalMastered">0</span>/<span id="totalWords">60</span>語習得
+                    </div>
+                </div>
+            </div>
+            <div class="daily-goal">
+                <div class="goal-title">🎯 本日の目標</div>
+                <div class="goal-text">あと<span id="todayGoal">5</span>問でセッション完了！</div>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="start-icon">📖</div>
+            <h2>古文単語を習いましょう</h2>
+            <p>古文の単語を段階的に学習します。<br>スキマ時間を活用して効率よく習得できます。</p>
+            
+            <div class="retry-queue" id="retryQueueDisplay" style="display: none;">
+                <div class="retry-queue-title">🔄 復習対象の単語がある</div>
+                <div class="retry-queue-text">
+                    <div class="retry-stats">
+                        <div class="retry-stat">
+                            <span>未定着:</span>
+                            <span class="error-count" id="retryCount">0</span>語
+                        </div>
+                        <div class="retry-stat">
+                            <span>誤答率:</span>
+                            <span id="errorRate">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div class="progress-label" style="margin-bottom: 12px;">学習フェーズを選択</div>
+                <div class="level-selector">
+                    <button class="level-btn active" onclick="selectPhase(1)">
+                        <div>Phase 1</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">必出60語</div>
+                    </button>
+                    <button class="level-btn" onclick="selectPhase(2)">
+                        <div>Phase 2</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">重要50語</div>
+                    </button>
+                    <button class="level-btn" onclick="selectPhase(3)">
+                        <div>Phase 3</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">応用30語</div>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div class="progress-label" style="margin-bottom: 12px;">難度レベルを選択</div>
+                <div class="level-selector">
+                    <button class="level-btn active" onclick="selectLevel(1)">
+                        <div>Lv.1</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">4択問題</div>
+                    </button>
+                    <button class="level-btn" onclick="selectLevel(2)">
+                        <div>Lv.2</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">穴埋め</div>
+                    </button>
+                    <button class="level-btn" onclick="selectLevel(3)">
+                        <div>Lv.3</div>
+                        <div style="font-size: 11px; font-weight: 400; margin-top: 4px;">文脈問題</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalWordsStart">60</div>
+                    <div class="stat-label">全単語数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="masteredStart">0</div>
+                    <div class="stat-label">習得済み</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="startSession()">学習を開始</button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div class="quiz-container active" id="quizContainer">
+            <div class="question-number" id="questionNum"></div>
+            
+            <div class="word-card">
+                <div class="word-ja" id="wordDisplay"></div>
+                <div class="word-reading" id="wordReading"></div>
+                <span class="word-category" id="wordCategory"></span>
+            </div>
+
+            <div class="question" id="questionText"></div>
+
+            <div class="options" id="optionsContainer"></div>
+
+            <div class="feedback" id="feedback">
+                <div class="feedback-title" id="feedbackTitle"></div>
+                <div id="feedbackText"></div>
+                <div class="explanation" id="explanation"></div>
+            </div>
+
+            <div class="button-group" id="buttonGroup" style="display: none;">
+                <button class="btn-primary" onclick="nextQuestion()">次へ</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <h2 id="resultTitle">セッション完了！</h2>
+            <div class="result-details">
+                <div class="result-score" id="resultScore">5</div>
+                <div class="result-score-label">問中 正解</div>
+                <div style="margin-top: 12px; font-size: 13px; color: #666;" id="resultMessage"></div>
+            </div>
+            <button class="btn-primary" onclick="returnToStart()">続ける</button>
+            <button class="btn-secondary" onclick="viewStats()">詳細を見る</button>
+        </div>
+    </div>
+
+    <script>
+        // 古文単語データベース
+        const vocabulary = [
+            // グループA: 現代語と意味がズレている形容詞
+            {
+                id: 1,
+                word: "をかし",
+                reading: "をかし",
+                category: "形容詞",
+                meanings: ["素晴らしい", "趣深い", "美しい"],
+                modernMeaning: "可笑しい（滑稽）",
+                pitfall: "❌ 意味が大きく異なる。入試の誤訳選択肢になりやすい",
+                examples: [
+                    "月の光いとをかし = 月の光が素晴らしく美しい"
+                ]
+            },
+            {
+                id: 2,
+                word: "あはれ",
+                reading: "あはれ",
+                category: "形容詞",
+                meanings: ["しみじみとした趣", "情緒的", "哀れな"],
+                modernMeaning: "あわれ（哀れ・可哀そう）",
+                pitfall: "△ 微妙にズレる。古文では「情趣」の意味が強い",
+                examples: [
+                    "秋風いとあはれなり = 秋風が情趣深い"
+                ]
+            },
+            {
+                id: 3,
+                word: "さうざうし",
+                reading: "さうざうし",
+                category: "形容詞",
+                meanings: ["そっけない", "つまらない", "不足である"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 現代語に相当する表現がない。覚えるしかない",
+                examples: [
+                    "その程の心つきさうざうし = その程度の気配りが足りない"
+                ]
+            },
+            {
+                id: 4,
+                word: "わろし",
+                reading: "わろし",
+                category: "形容詞",
+                meanings: ["悪い", "劣っている", "醜い"],
+                modernMeaning: "悪い",
+                pitfall: "✅ 比較的現代語と通じやすい",
+                examples: [
+                    "容貌いとわろし = 容姿が見劣りする"
+                ]
+            },
+            {
+                id: 5,
+                word: "うつくし",
+                reading: "うつくし",
+                category: "形容詞",
+                meanings: ["美しい", "愛らしい", "可愛らしい"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 「可愛い」に近いが、古文ではより高級な美しさ",
+                examples: [
+                    "顔いとうつくし = 顔が美しく愛らしい"
+                ]
+            },
+            {
+                id: 6,
+                word: "きよし",
+                reading: "きよし",
+                category: "形容詞",
+                meanings: ["清廉である", "清潔である", "澄んでいる"],
+                modernMeaning: "清い・きれい",
+                pitfall: "△ 現代語と同じだが、古文ではより広い意味",
+                examples: [
+                    "心きよき人 = 心が清廉な人"
+                ]
+            },
+            {
+                id: 7,
+                word: "なかなか",
+                reading: "なかなか",
+                category: "副詞",
+                meanings: ["かえって", "むしろ", "意外にも"],
+                modernMeaning: "なかなか（ほどほどに）",
+                pitfall: "❌ 古文では「かえって」という反対の意味になることがある",
+                examples: [
+                    "なかなか下手なり = かえって下手である"
+                ]
+            },
+            {
+                id: 8,
+                word: "かたし",
+                reading: "かたし",
+                category: "形容詞",
+                meanings: ["難しい", "つらい", "厳しい"],
+                modernMeaning: "硬い",
+                pitfall: "❌ 意味が異なる",
+                examples: [
+                    "その事かたし = その事は難しい"
+                ]
+            },
+            {
+                id: 9,
+                word: "たかし",
+                reading: "たかし",
+                category: "形容詞",
+                meanings: ["高い", "気高い", "優雅である"],
+                modernMeaning: "高い（同じ）",
+                pitfall: "△ 古文では「気高さ」「優雅さ」のニュアンスが強い",
+                examples: [
+                    "心たかき人 = 心が高潔な人"
+                ]
+            },
+            {
+                id: 10,
+                word: "いつきしき",
+                reading: "いつきしき",
+                category: "形容詞",
+                meanings: ["慎ましい", "優雅である", "上品である"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 奈良・平安時代の最高級表現",
+                examples: [
+                    "いつきしき女房 = 上品で優雅な女房"
+                ]
+            },
+            {
+                id: 11,
+                word: "たおやめき",
+                reading: "たおやめき",
+                category: "形容詞",
+                meanings: ["しなやか", "女らしい", "優美である"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の表現",
+                examples: [
+                    "たおやめきたる姿 = しなやかで優美な姿"
+                ]
+            },
+            {
+                id: 12,
+                word: "はしたなし",
+                reading: "はしたなし",
+                category: "形容詞",
+                meanings: ["みっともない", "失礼である", "不十分である"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では頻出の評価表現",
+                examples: [
+                    "其の様はしたなし = その様子はみっともない"
+                ]
+            },
+            {
+                id: 13,
+                word: "しろし",
+                reading: "しろし",
+                category: "形容詞",
+                meanings: ["知られている", "明白である", "白い"],
+                modernMeaning: "白い",
+                pitfall: "△ 複数の意味を持つ",
+                examples: [
+                    "事しろし = 事が明白である"
+                ]
+            },
+            {
+                id: 14,
+                word: "さはあれ",
+                reading: "さはあれ",
+                category: "慣用句",
+                meanings: ["そうであるとしても", "だけれども"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典的な譲歩の表現",
+                examples: [
+                    "さはあれ、この事は大切なり = だけれども、この事は大切である"
+                ]
+            },
+            {
+                id: 15,
+                word: "いみじき",
+                reading: "いみじき",
+                category: "形容詞",
+                meanings: ["すごい", "極めて", "並外れた"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では最高級の評価表現",
+                examples: [
+                    "いみじき美しさ = 並外れた美しさ"
+                ]
+            },
+            // グループB: 多義語
+            {
+                id: 16,
+                word: "いと",
+                reading: "いと",
+                category: "副詞・名詞",
+                meanings: ["非常に", "極めて", "糸", "板"],
+                modernMeaning: "（複数の意味）",
+                pitfall: "△ 文脈で意味が変わる。副詞と名詞を見分けが重要",
+                examples: [
+                    "いと美し = 非常に美しい（副詞）",
+                    "糸の色 = 糸の色（名詞）"
+                ]
+            },
+            {
+                id: 17,
+                word: "つれづれ",
+                reading: "つれづれ",
+                category: "名詞・形容詞",
+                meanings: ["つれなく寂しい", "退屈", "慰み"],
+                modernMeaning: "（複数の意味）",
+                pitfall: "△ 複数の意味を持つ。「徒然」の古形",
+                examples: [
+                    "つれづれなるままに = 退屈なままに",
+                    "つれづれ慰む = 退屈を慰める"
+                ]
+            },
+            {
+                id: 18,
+                word: "たへず",
+                reading: "たへず",
+                category: "動詞",
+                meanings: ["耐える", "切れる", "絶える"],
+                modernMeaning: "絶えず（継続）",
+                pitfall: "❌ 「耐えず」と「絶えず」を見分けることが重要",
+                examples: [
+                    "涙たえずして = 涙が絶え間なく流れて"
+                ]
+            },
+            {
+                id: 19,
+                word: "かなし",
+                reading: "かなし",
+                category: "形容詞",
+                meanings: ["悲しい", "愛しい", "つまらない"],
+                modernMeaning: "叶う（かなう）",
+                pitfall: "❌ 複数の意味がある。文脈で判定が必要",
+                examples: [
+                    "かなしきことかな = つまらないことだなあ"
+                ]
+            },
+            {
+                id: 20,
+                word: "かろし",
+                reading: "かろし",
+                category: "形容詞",
+                meanings: ["軽い", "軽蔑する", "心が軽い"],
+                modernMeaning: "軽い",
+                pitfall: "△ 複数の意味がある",
+                examples: [
+                    "事かろし = その事を軽く見ている"
+                ]
+            },
+            // グループC: 敬語・補助動詞・助動詞
+            {
+                id: 21,
+                word: "給ふ",
+                reading: "たまふ",
+                category: "助動詞",
+                meanings: ["～させる", "受ける（敬語）"],
+                modernMeaning: "与える・くださる（敬語）",
+                pitfall: "△ 敬語として機能することが重要",
+                examples: [
+                    "見給ふ = ご覧になる",
+                    "食べ給ふ = 召し上がる"
+                ]
+            },
+            {
+                id: 22,
+                word: "申す",
+                reading: "もうす",
+                category: "動詞",
+                meanings: ["言う（敬語・謙譲）", "申し上げる"],
+                modernMeaning: "申し上げる",
+                pitfall: "△ 古文では頻出の敬語",
+                examples: [
+                    "申し給ふ = お仰る（最敬礼）"
+                ]
+            },
+            {
+                id: 23,
+                word: "侍る",
+                reading: "はべる",
+                category: "動詞",
+                meanings: ["いる（敬語・謙譲）", "存在する"],
+                modernMeaning: "おります（敬語）",
+                pitfall: "△ 古文では最も一般的な敬語動詞",
+                examples: [
+                    "宮侍りけり = 宮がおられた"
+                ]
+            },
+            {
+                id: 24,
+                word: "おはします",
+                reading: "おはします",
+                category: "動詞",
+                meanings: ["いらっしゃる（最敬礼）"],
+                modernMeaning: "いらっしゃる",
+                pitfall: "✅ 最高レベルの敬語",
+                examples: [
+                    "帝おはしまして = 帝がいらっしゃって"
+                ]
+            },
+            {
+                id: 25,
+                word: "見給ふ",
+                reading: "みたまふ",
+                category: "複合動詞",
+                meanings: ["ご覧になる", "見させる"],
+                modernMeaning: "ご覧になる",
+                pitfall: "✅ 「見る」+「給ふ」の組み合わせ",
+                examples: [
+                    "御簾越しに見給ふ = 御簾越しにご覧になる"
+                ]
+            },
+            {
+                id: 26,
+                word: "なり",
+                reading: "なり",
+                category: "助動詞",
+                meanings: ["である", "～そうだ（伝聞）", "～ようだ（推定）"],
+                modernMeaning: "である・なる",
+                pitfall: "△ 複数の用法がある。特に伝聞と推定は重要",
+                examples: [
+                    "紫の君なり = 紫の君である（同定）",
+                    "雪なり = 雪のようだ（推定）"
+                ]
+            },
+            {
+                id: 27,
+                word: "たり",
+                reading: "たり",
+                category: "助動詞",
+                meanings: ["～ている（完了）", "～ました（過去）"],
+                modernMeaning: "～ている・～た",
+                pitfall: "△ 完了か過去かの見分けが重要",
+                examples: [
+                    "見たり = 見ている／見た"
+                ]
+            },
+            {
+                id: 28,
+                word: "けり",
+                reading: "けり",
+                category: "助動詞",
+                meanings: ["～た（過去の完結）", "～まし（詠嘆）"],
+                modernMeaning: "～た・～なあ",
+                pitfall: "△ 過去完結か詠嘆か文脈で判定",
+                examples: [
+                    "見けり = 見た（完結）",
+                    "麗しうこそありけれ = 何と美しいことだ（詠嘆）"
+                ]
+            },
+            {
+                id: 29,
+                word: "べし",
+                reading: "べし",
+                category: "助動詞",
+                meanings: ["～べき", "～だろう", "～ができる"],
+                modernMeaning: "～べき・～だろう",
+                pitfall: "△ 複数の訳し方がある",
+                examples: [
+                    "為すべし = するべきだ"
+                ]
+            },
+            {
+                id: 30,
+                word: "ぬ",
+                reading: "ぬ",
+                category: "助動詞",
+                meanings: ["～ない（打消し）", "～ぬ（古形）"],
+                modernMeaning: "～ない",
+                pitfall: "✅ 打消しの助動詞。重要",
+                examples: [
+                    "見ぬ = 見ない"
+                ]
+            },
+            // グループD: 指示語・接続詞・副詞
+            {
+                id: 31,
+                word: "かかる",
+                reading: "かかる",
+                category: "形容詞",
+                meanings: ["そのような", "かような"],
+                modernMeaning: "かかる（係る）",
+                pitfall: "△ 指示語として機能。「そのような」の意",
+                examples: [
+                    "かかる時こそ = そのような時だからこそ"
+                ]
+            },
+            {
+                id: 32,
+                word: "かなた",
+                reading: "かなた",
+                category: "名詞",
+                meanings: ["あちら", "向こう", "あの世"],
+                modernMeaning: "かなた（向こう）",
+                pitfall: "△ 空間指示。あの世の意味もある",
+                examples: [
+                    "かなたに見ゆ = あちらに見える"
+                ]
+            },
+            {
+                id: 33,
+                word: "かくて",
+                reading: "かくて",
+                category: "副詞",
+                meanings: ["このようにして", "こうして"],
+                modernMeaning: "このようにして",
+                pitfall: "✅ 接続詞的な副詞。物語の展開に重要",
+                examples: [
+                    "かくて月日経ぬ = こうして月日が経った"
+                ]
+            },
+            {
+                id: 34,
+                word: "さすがに",
+                reading: "さすがに",
+                category: "副詞",
+                meanings: ["さすがに", "やはり", "いかにも"],
+                modernMeaning: "さすがに（やはり）",
+                pitfall: "△ 古文では「いかにも」の意が強い",
+                examples: [
+                    "さすがに心引かるるなり = いかにも心が引かれるのだ"
+                ]
+            },
+            {
+                id: 35,
+                word: "たゞ",
+                reading: "ただ",
+                category: "副詞",
+                meanings: ["ただし", "ただ", "限定"],
+                modernMeaning: "ただ",
+                pitfall: "△ 古文では「ただし」の意が強いことがある",
+                examples: [
+                    "たゞ侍らむ = ただいるだけだろう"
+                ]
+            },
+            // グループE: 頻出名詞・動詞
+            {
+                id: 36,
+                word: "いのち",
+                reading: "いのち",
+                category: "名詞",
+                meanings: ["命", "いのち"],
+                modernMeaning: "命・いのち",
+                pitfall: "✅ 古文では「命」がより頻繁に出る",
+                examples: [
+                    "命短し = 命が短い"
+                ]
+            },
+            {
+                id: 37,
+                word: "思ふ",
+                reading: "おもふ",
+                category: "動詞",
+                meanings: ["思う", "考える", "恋する"],
+                modernMeaning: "思う",
+                pitfall: "△ 古文では「恋する」の意味もある",
+                examples: [
+                    "彼を思ふ = 彼のことを恋しく思う"
+                ]
+            },
+            {
+                id: 38,
+                word: "あらず",
+                reading: "あらず",
+                category: "動詞",
+                meanings: ["ない", "いない", "ではない"],
+                modernMeaning: "ない・ではない",
+                pitfall: "✅ 「あり」の打消し形。重要",
+                examples: [
+                    "それあらず = そうではない"
+                ]
+            },
+            {
+                id: 39,
+                word: "見る",
+                reading: "みる",
+                category: "動詞",
+                meanings: ["見る", "見える", "見まう（相互）"],
+                modernMeaning: "見る",
+                pitfall: "△ 古文では複数の意味がある",
+                examples: [
+                    "月見る = 月を見る"
+                ]
+            },
+            {
+                id: 40,
+                word: "言ふ",
+                reading: "いふ",
+                category: "動詞",
+                meanings: ["言う", "いう"],
+                modernMeaning: "言う",
+                pitfall: "✅ 古文では最も基本的な動詞",
+                examples: [
+                    "何と言ふや = どう言いますか"
+                ]
+            },
+
+            // 追加の20語（グループの補填）
+            {
+                id: 41,
+                word: "つれなし",
+                reading: "つれなし",
+                category: "形容詞",
+                meanings: ["そっけない", "冷たい", "つまらない"],
+                modernMeaning: "つれない",
+                pitfall: "△ 古文では「そっけない」「冷たい」の意",
+                examples: [
+                    "つれなき返事 = そっけない返事"
+                ]
+            },
+            {
+                id: 42,
+                word: "心豊か",
+                reading: "こころゆたか",
+                category: "複合形容詞",
+                meanings: ["心が豊かである"],
+                modernMeaning: "心が豊か",
+                pitfall: "✅ 複合表現",
+                examples: [
+                    "心豊かなり = 心が豊かだ"
+                ]
+            },
+            {
+                id: 43,
+                word: "もののふ",
+                reading: "もののふ",
+                category: "名詞",
+                meanings: ["武士", "兵士"],
+                modernMeaning: "武士",
+                pitfall: "✅ 古文では武士や兵を指す",
+                examples: [
+                    "もののふの名 = 武士の名"
+                ]
+            },
+            {
+                id: 44,
+                word: "都",
+                reading: "みやこ",
+                category: "名詞",
+                meanings: ["都", "京"],
+                modernMeaning: "都市",
+                pitfall: "✅ 古文では首都（京都）を意味することが多い",
+                examples: [
+                    "都より来たり = 京から来た"
+                ]
+            },
+            {
+                id: 45,
+                word: "月",
+                reading: "つき",
+                category: "名詞",
+                meanings: ["月", "季節"],
+                modernMeaning: "月・つき",
+                pitfall: "△ 古文では季節を表すこともある",
+                examples: [
+                    "月涼し = 季節は秋で涼しい"
+                ]
+            },
+            {
+                id: 46,
+                word: "花",
+                reading: "はな",
+                category: "名詞",
+                meanings: ["花", "桜"],
+                modernMeaning: "花",
+                pitfall: "△ 古文では「桜」を特に意味することが多い",
+                examples: [
+                    "花見る = 桜を見る"
+                ]
+            },
+            {
+                id: 47,
+                word: "宮",
+                reading: "みや",
+                category: "名詞",
+                meanings: ["皇族の人", "宮殿"],
+                modernMeaning: "宮殿・皇族",
+                pitfall: "△ 古文では主要な人物を示す",
+                examples: [
+                    "宮侍りけり = 皇族の人がいた"
+                ]
+            },
+            {
+                id: 48,
+                word: "心",
+                reading: "こころ",
+                category: "名詞",
+                meanings: ["心", "気持ち", "感情"],
+                modernMeaning: "心",
+                pitfall: "✅ 古文では「心」が非常に頻出",
+                examples: [
+                    "心清し = 心が清い"
+                ]
+            },
+            {
+                id: 49,
+                word: "水",
+                reading: "みず",
+                category: "名詞",
+                meanings: ["水", "川"],
+                modernMeaning: "水",
+                pitfall: "△ 古文では川や池を意味することもある",
+                examples: [
+                    "水清し = 水が清い"
+                ]
+            },
+            {
+                id: 50,
+                word: "雪",
+                reading: "ゆき",
+                category: "名詞",
+                meanings: ["雪"],
+                modernMeaning: "雪",
+                pitfall: "✅ 古文では冬の風情を象徴",
+                examples: [
+                    "雪白し = 雪が白い"
+                ]
+            },
+            {
+                id: 51,
+                word: "風",
+                reading: "かぜ",
+                category: "名詞",
+                meanings: ["風", "風情"],
+                modernMeaning: "風",
+                pitfall: "△ 古文では「風情」の意もある",
+                examples: [
+                    "風薫る = 風が爽やかだ"
+                ]
+            },
+            {
+                id: 52,
+                word: "雨",
+                reading: "あめ",
+                category: "名詞",
+                meanings: ["雨"],
+                modernMeaning: "雨",
+                pitfall: "✅ 古文では悲しい情景の象徴",
+                examples: [
+                    "雨降りたり = 雨が降っている"
+                ]
+            },
+            {
+                id: 53,
+                word: "光",
+                reading: "ひかり",
+                category: "名詞",
+                meanings: ["光", "輝き"],
+                modernMeaning: "光",
+                pitfall: "△ 古文では月などの光を特に強調",
+                examples: [
+                    "月の光 = 月の光"
+                ]
+            },
+            {
+                id: 54,
+                word: "影",
+                reading: "かげ",
+                category: "名詞",
+                meanings: ["影", "姿"],
+                modernMeaning: "影",
+                pitfall: "△ 古文では人物の「姿」を意味することもある",
+                examples: [
+                    "女の影 = 女性の姿"
+                ]
+            },
+            {
+                id: 55,
+                word: "色",
+                reading: "いろ",
+                category: "名詞",
+                meanings: ["色", "風情"],
+                modernMeaning: "色",
+                pitfall: "△ 古文では「風情」「情趣」の意もある",
+                examples: [
+                    "色好む = 風情を愛する"
+                ]
+            },
+            {
+                id: 56,
+                word: "声",
+                reading: "こえ",
+                category: "名詞",
+                meanings: ["声", "音"],
+                modernMeaning: "声",
+                pitfall: "✅ 古文では人の声や音をよく描写",
+                examples: [
+                    "良き声 = 良い声"
+                ]
+            },
+            {
+                id: 57,
+                word: "香",
+                reading: "か",
+                category: "名詞",
+                meanings: ["香り", "香"],
+                modernMeaning: "香り",
+                pitfall: "✅ 古文では貴族の香水や香料をよく表現",
+                examples: [
+                    "香りよし = 香りがよい"
+                ]
+            },
+            {
+                id: 58,
+                word: "糸",
+                reading: "いと",
+                category: "名詞",
+                meanings: ["糸", "糸のような"],
+                modernMeaning: "糸",
+                pitfall: "✅ 副詞の「いと」と区別が必要",
+                examples: [
+                    "糸の色 = 糸の色"
+                ]
+            },
+            {
+                id: 59,
+                word: "文",
+                reading: "ふみ",
+                category: "名詞",
+                meanings: ["文字", "手紙"],
+                modernMeaning: "文字・手紙",
+                pitfall: "△ 古文では「手紙」の意が強い",
+                examples: [
+                    "文送る = 手紙を送る"
+                ]
+            },
+            {
+                id: 60,
+                word: "人",
+                reading: "ひと",
+                category: "名詞",
+                meanings: ["人", "人間"],
+                modernMeaning: "人",
+                pitfall: "✅ 古文では最も基本的な名詞",
+                examples: [
+                    "良き人 = 良い人"
+                ]
+            },
+
+            // ==================== Phase 2（50語） ====================
+            {
+                id: 61,
+                word: "いみじき",
+                reading: "いみじき",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["すごい", "並外れた", "極めて"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では最高級の評価表現。感動を表す",
+                examples: [
+                    "いみじき美しさ = 並外れた美しさ",
+                    "いみじくも悲し = 本当に悲しい"
+                ]
+            },
+            {
+                id: 62,
+                word: "あさまし",
+                reading: "あさまし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["あきれた", "思いの外", "予期しない"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では「予期しない状況」を表す",
+                examples: [
+                    "あさましくも落ちぬ = 思いの外落ちてしまった"
+                ]
+            },
+            {
+                id: 63,
+                word: "かたじけなし",
+                reading: "かたじけなし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["恐れ多い", "申し訳ない", "気がひける"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では敬語的な謙譲表現。相手に対する失礼を感じる",
+                examples: [
+                    "かたじけなくも仰せられぬ = 恐れ多くもそうおっしゃる"
+                ]
+            },
+            {
+                id: 64,
+                word: "つゆ",
+                reading: "つゆ",
+                phase: 2,
+                category: "名詞・副詞",
+                meanings: ["露", "少しも（打消し）", "一点も"],
+                modernMeaning: "露（つゆ）",
+                pitfall: "△ 「露」の意と「少しも～ない」の意がある",
+                examples: [
+                    "つゆ疑ふな = 少しも疑うな"
+                ]
+            },
+            {
+                id: 65,
+                word: "ゆゑに",
+                reading: "ゆゑに",
+                phase: 2,
+                category: "副詞・接続詞",
+                meanings: ["だから", "それゆえに", "理由"],
+                modernMeaning: "故に・ゆえに",
+                pitfall: "△ 古文では因果関係を示す重要な接続詞",
+                examples: [
+                    "雨ふりたり。ゆゑに行くことならず = 雨が降った。だから行けない"
+                ]
+            },
+            {
+                id: 66,
+                word: "なほ",
+                reading: "なほ",
+                phase: 2,
+                category: "副詞",
+                meanings: ["やはり", "やっぱり", "なお"],
+                modernMeaning: "なお・やはり",
+                pitfall: "△ 古文では「相変わらず」「それでもなお」の意が強い",
+                examples: [
+                    "なほ美し = やはり美しい"
+                ]
+            },
+            {
+                id: 67,
+                word: "いかなれば",
+                reading: "いかなれば",
+                phase: 2,
+                category: "副詞",
+                meanings: ["どうしたことか", "どのようにしたら", "何故"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典の疑問表現",
+                examples: [
+                    "いかなれば、斯くまで美しかるべき = どうしたことか、こんなに美しいのか"
+                ]
+            },
+            {
+                id: 68,
+                word: "いかで",
+                reading: "いかで",
+                phase: 2,
+                category: "副詞",
+                meanings: ["どうして", "何とかして", "どうにかして"],
+                modernMeaning: "どうして",
+                pitfall: "△ 古文では「方法」や「手段」を探る時に使う",
+                examples: [
+                    "いかでか知らん = どうして知ろうか（=知る方法がない）"
+                ]
+            },
+            {
+                id: 69,
+                word: "しかも",
+                reading: "しかも",
+                phase: 2,
+                category: "接続詞",
+                meanings: ["その上", "しかも", "そればかりか"],
+                modernMeaning: "しかも",
+                pitfall: "✅ 古文でも現代語でも同じ意味",
+                examples: [
+                    "美しくして、しかも賢し = 美しく、その上賢い"
+                ]
+            },
+            {
+                id: 70,
+                word: "たうとし",
+                reading: "たうとし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["尊い", "高い身分", "大切である"],
+                modernMeaning: "尊い",
+                pitfall: "△ 古文では「身分が高い」「価値が高い」の意",
+                examples: [
+                    "帝はたうとし = 皇帝は尊い身分である"
+                ]
+            },
+            {
+                id: 71,
+                word: "やさし",
+                reading: "やさし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["優雅である", "上品である", "洗練されている"],
+                modernMeaning: "優しい",
+                pitfall: "❌ 意味が大きく異なる。古文では「優雅さ」を表す",
+                examples: [
+                    "やさしき衣装 = 優雅で上品な衣装"
+                ]
+            },
+            {
+                id: 72,
+                word: "ゐる",
+                reading: "ゐる",
+                phase: 2,
+                category: "動詞",
+                meanings: ["いる", "存在する", "座っている"],
+                modernMeaning: "いる",
+                pitfall: "✅ 古文では「ゐる」という表記だが、意味は同じ",
+                examples: [
+                    "月のゐるところ = 月が出ている場所"
+                ]
+            },
+            {
+                id: 73,
+                word: "くる",
+                reading: "くる",
+                phase: 2,
+                category: "動詞",
+                meanings: ["来る", "到来する"],
+                modernMeaning: "来る",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "春くりぬ = 春が来た"
+                ]
+            },
+            {
+                id: 74,
+                word: "ゆく",
+                reading: "ゆく",
+                phase: 2,
+                category: "動詞",
+                meanings: ["行く", "去る", "経つ"],
+                modernMeaning: "行く",
+                pitfall: "△ 古文では「時間が経つ」の意で使われることが多い",
+                examples: [
+                    "月日ゆきぬ = 月日が経った"
+                ]
+            },
+            {
+                id: 75,
+                word: "なる",
+                reading: "なる",
+                phase: 2,
+                category: "動詞・助動詞",
+                meanings: ["成る", "～になる", "鳴る"],
+                modernMeaning: "なる",
+                pitfall: "△ 複数の意味がある",
+                examples: [
+                    "大人になる = 成人する"
+                ]
+            },
+            {
+                id: 76,
+                word: "なし",
+                reading: "なし",
+                phase: 2,
+                category: "動詞",
+                meanings: ["する", "行う"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では「する」の尊敬語・謙譲語として使われる",
+                examples: [
+                    "御返事なさる = お返事をされる"
+                ]
+            },
+            {
+                id: 77,
+                word: "つかはす",
+                reading: "つかはす",
+                phase: 2,
+                category: "動詞",
+                meanings: ["使わせる", "遣わす", "仕える"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では「仕える」や「使役」を表す",
+                examples: [
+                    "官につかはす = 官職に仕える"
+                ]
+            },
+            {
+                id: 78,
+                word: "つとめて",
+                reading: "つとめて",
+                phase: 2,
+                category: "副詞・名詞",
+                meanings: ["夜明け", "早朝", "一生懸命"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では特に「夜明け」という時間を指す",
+                examples: [
+                    "つとめて立ちけり = 夜明けに立った"
+                ]
+            },
+            {
+                id: 79,
+                word: "たそかれ",
+                reading: "たそかれ",
+                phase: 2,
+                category: "名詞",
+                meanings: ["夕暮れ", "黄昏時"],
+                modernMeaning: "たそがれ（夕暮れ）",
+                pitfall: "✅ 古文では情緒的な時間帯を象徴",
+                examples: [
+                    "たそかれのころ = 夕暮れの時分"
+                ]
+            },
+            {
+                id: 80,
+                word: "かつ",
+                reading: "かつ",
+                phase: 2,
+                category: "副詞・接続詞",
+                meanings: ["一方では", "また", "同時に"],
+                modernMeaning: "かつ（同時に）",
+                pitfall: "△ 古文では複数の事柄を並列する時に使う",
+                examples: [
+                    "喜びかつ悲し = 喜び、そして悲しい"
+                ]
+            },
+            {
+                id: 81,
+                word: "ただし",
+                reading: "ただし",
+                phase: 2,
+                category: "接続詞",
+                meanings: ["しかし", "ただし", "それでも"],
+                modernMeaning: "ただし",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "美しし。ただし心よからず = 美しい。しかし心が良くない"
+                ]
+            },
+            {
+                id: 82,
+                word: "いはんや",
+                reading: "いはんや",
+                phase: 2,
+                category: "接続詞",
+                meanings: ["況んや", "ましてや", "そもそも"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では議論を深める時の重要表現",
+                examples: [
+                    "一つさえ難し。いはんや二つ = 一つですら難しい。ましてや二つは"
+                ]
+            },
+            {
+                id: 83,
+                word: "そもそも",
+                reading: "そもそも",
+                phase: 2,
+                category: "副詞",
+                meanings: ["そもそも", "そういえば", "元々"],
+                modernMeaning: "そもそも",
+                pitfall: "✅ 古文でも現代語でも同じ意味",
+                examples: [
+                    "そもそも何ゆゑに来たるや = そもそも何故に来たのか"
+                ]
+            },
+            {
+                id: 84,
+                word: "すべて",
+                reading: "すべて",
+                phase: 2,
+                category: "副詞・名詞",
+                meanings: ["全て", "大体", "およそ"],
+                modernMeaning: "全て・すべて",
+                pitfall: "△ 古文では「大体」の意で使われることが多い",
+                examples: [
+                    "すべて春なり = 全て春である"
+                ]
+            },
+            {
+                id: 85,
+                word: "おほかた",
+                reading: "おおかた",
+                phase: 2,
+                category: "副詞・名詞",
+                meanings: ["大体", "概ね", "全く"],
+                modernMeaning: "大体・おおむね",
+                pitfall: "△ 古文では「全く」の強い否定の意もある",
+                examples: [
+                    "おほかたならず = 並大抵ではない"
+                ]
+            },
+            {
+                id: 86,
+                word: "たゞに",
+                reading: "ただに",
+                phase: 2,
+                category: "副詞",
+                meanings: ["ただ単に", "単なる", "限定"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では「ただし」の関連表現",
+                examples: [
+                    "たゞに美しきのみに非ず = 単なる美しさではない"
+                ]
+            },
+            {
+                id: 87,
+                word: "たまさか",
+                reading: "たまさか",
+                phase: 2,
+                category: "副詞",
+                meanings: ["偶然に", "たまに", "稀に"],
+                modernMeaning: "稀に・時々",
+                pitfall: "△ 古文では「特別な場合」を表す",
+                examples: [
+                    "たまさか逢ひてぞ = 稀に会うのだ"
+                ]
+            },
+            {
+                id: 88,
+                word: "さてこそ",
+                reading: "さてこそ",
+                phase: 2,
+                category: "接続詞",
+                meanings: ["だからこそ", "そういうわけで"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の強調表現",
+                examples: [
+                    "さてこそ尊きなれ = だからこそ尊いのだ"
+                ]
+            },
+            {
+                id: 89,
+                word: "いとど",
+                reading: "いとど",
+                phase: 2,
+                category: "副詞",
+                meanings: ["ますます", "一層", "益々"],
+                modernMeaning: "益々・ますます",
+                pitfall: "✅ 古文では感情の増幅を表す",
+                examples: [
+                    "いとど悲し = ますます悲しい"
+                ]
+            },
+            {
+                id: 90,
+                word: "さらに",
+                reading: "さらに",
+                phase: 2,
+                category: "副詞",
+                meanings: ["全く～ない", "少しも", "決して"],
+                modernMeaning: "さらに（さらに進む）",
+                pitfall: "❌ 古文では打消しの「少しも～ない」の意が多い",
+                examples: [
+                    "さらに知らず = 全く知らない"
+                ]
+            },
+            {
+                id: 91,
+                word: "いたり",
+                reading: "いたり",
+                phase: 2,
+                category: "副詞・名詞",
+                meanings: ["到る", "至る"],
+                modernMeaning: "到る・至る",
+                pitfall: "✅ 古文では「行き着く」の意",
+                examples: [
+                    "京にいたり = 京に到着した"
+                ]
+            },
+            {
+                id: 92,
+                word: "はかなし",
+                reading: "はかなし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["はかない", "儚い", "短い"],
+                modernMeaning: "はかない",
+                pitfall: "△ 古文では人生や物事の「儚さ」をテーマにしていた",
+                examples: [
+                    "人の命はかなし = 人間の命は儚い"
+                ]
+            },
+            {
+                id: 93,
+                word: "あてなり",
+                reading: "あてなり",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["貴族的である", "高貴である", "気品がある"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の美学を表す",
+                examples: [
+                    "あてなる姫君 = 高貴で気品ある姫君"
+                ]
+            },
+            {
+                id: 94,
+                word: "いかつく",
+                reading: "いかつく",
+                phase: 2,
+                category: "副詞・形容詞",
+                meanings: ["厳しく", "激しく", "恐ろしく"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では戦闘や激しい感情を表す",
+                examples: [
+                    "いかつく怒りけり = 激しく怒った"
+                ]
+            },
+            {
+                id: 95,
+                word: "にくし",
+                reading: "にくし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["憎い", "嫌だ", "見苦しい"],
+                modernMeaning: "憎い・嫌い",
+                pitfall: "△ 古文では「見苦しい」の美的評価もある",
+                examples: [
+                    "その様にくし = その様子が見苦しい"
+                ]
+            },
+            {
+                id: 96,
+                word: "いとほし",
+                reading: "いとほし",
+                phase: 2,
+                category: "形容詞",
+                meanings: ["哀れだ", "可哀相だ", "つらい"],
+                modernMeaning: "哀れ・かわいそう",
+                pitfall: "△ 古文では同情と美的な哀愁が混在",
+                examples: [
+                    "いとほしき姿 = 哀れで可哀相な姿"
+                ]
+            },
+            {
+                id: 97,
+                word: "をりほど",
+                reading: "をりほど",
+                phase: 2,
+                category: "名詞・副詞",
+                meanings: ["その時", "その間", "その時分"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では時間的な焦点を示す",
+                examples: [
+                    "をりほどに = その時分に"
+                ]
+            },
+            {
+                id: 98,
+                word: "かれ",
+                reading: "かれ",
+                phase: 2,
+                category: "代名詞・形容詞",
+                meanings: ["枯れた", "あの", "彼"],
+                modernMeaning: "枯れた・あの",
+                pitfall: "△ 複数の意味がある",
+                examples: [
+                    "かれたる草 = 枯れた草"
+                ]
+            },
+            {
+                id: 99,
+                word: "これ",
+                reading: "これ",
+                phase: 2,
+                category: "代名詞",
+                meanings: ["これ", "この"],
+                modernMeaning: "これ・この",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "これは何ぞ = これは何か"
+                ]
+            },
+            {
+                id: 100,
+                word: "それ",
+                reading: "それ",
+                phase: 2,
+                category: "代名詞",
+                meanings: ["それ", "その"],
+                modernMeaning: "それ・その",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "それにしても = それでも"
+                ]
+            },
+            {
+                id: 101,
+                word: "あれ",
+                reading: "あれ",
+                phase: 2,
+                category: "代名詞・形容詞",
+                meanings: ["あれ", "あの"],
+                modernMeaning: "あれ・あの",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "あれは月ぞ = あれは月である"
+                ]
+            },
+            {
+                id: 102,
+                word: "いづれ",
+                reading: "いづれ",
+                phase: 2,
+                category: "代名詞・形容詞",
+                meanings: ["どちら", "どれ", "何れ"],
+                modernMeaning: "どちら・どれ",
+                pitfall: "✅ 古文でも現代語でも同じ質問詞",
+                examples: [
+                    "いづれがよき = どちらが良いか"
+                ]
+            },
+            {
+                id: 103,
+                word: "たれ",
+                reading: "たれ",
+                phase: 2,
+                category: "代名詞",
+                meanings: ["誰", "何人"],
+                modernMeaning: "誰",
+                pitfall: "✅ 古文での質問詞",
+                examples: [
+                    "たれぞ来たる = 誰が来たのか"
+                ]
+            },
+            {
+                id: 104,
+                word: "なに",
+                reading: "なに",
+                phase: 2,
+                category: "代名詞",
+                meanings: ["何"],
+                modernMeaning: "何",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "なにゆゑに = 何故に"
+                ]
+            },
+            {
+                id: 105,
+                word: "いづ",
+                reading: "いづ",
+                phase: 2,
+                category: "動詞",
+                meanings: ["出る", "起こる"],
+                modernMeaning: "出る・いづ",
+                pitfall: "✅ 古い表現だが意味は変わらない",
+                examples: [
+                    "火いづ = 火が出た"
+                ]
+            },
+            {
+                id: 106,
+                word: "たく",
+                reading: "たく",
+                phase: 2,
+                category: "動詞",
+                meanings: ["焚く", "火をつける"],
+                modernMeaning: "焚く・たく",
+                pitfall: "✅ 古文では火や炎に関する表現",
+                examples: [
+                    "火たく = 火を焚く"
+                ]
+            },
+            {
+                id: 107,
+                word: "まとふ",
+                reading: "まとふ",
+                phase: 2,
+                category: "動詞",
+                meanings: ["身につける", "纏う"],
+                modernMeaning: "まとう（身につける）",
+                pitfall: "✅ 古文では衣類や装飾品を身につけることを表す",
+                examples: [
+                    "美しき衣まとふ = 美しい衣を身につける"
+                ]
+            },
+            {
+                id: 108,
+                word: "ぞ",
+                reading: "ぞ",
+                phase: 2,
+                category: "助詞",
+                meanings: ["強調", "詠嘆"],
+                modernMeaning: "ぞ（古い強調助詞）",
+                pitfall: "✅ 古文での強調・詠嘆の助詞。文法的に重要",
+                examples: [
+                    "美しくぞ侍る = 何と美しいことか"
+                ]
+            },
+            {
+                id: 109,
+                word: "は",
+                reading: "は",
+                phase: 2,
+                category: "助詞",
+                meanings: ["主題の標示"],
+                modernMeaning: "は（助詞）",
+                pitfall: "✅ 古文でも現代語でも主題を示す助詞",
+                examples: [
+                    "月は美し = 月は美しい"
+                ]
+            },
+            {
+                id: 110,
+                word: "も",
+                reading: "も",
+                phase: 2,
+                category: "助詞",
+                meanings: ["も（並列）", "～も～も"],
+                modernMeaning: "も",
+                pitfall: "✅ 古文でも現代語でも同じ意味",
+                examples: [
+                    "春も秋も良し = 春も秋も良い"
+                ]
+            },
+
+            // ==================== Phase 3（30語） ====================
+            {
+                id: 111,
+                word: "ゆゆしき",
+                reading: "ゆゆしき",
+                phase: 3,
+                category: "形容詞",
+                meanings: ["不吉である", "不運である", "危険"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文では占いや予感の不吉さを表す",
+                examples: [
+                    "ゆゆしき兆し = 不吉な前兆"
+                ]
+            },
+            {
+                id: 112,
+                word: "ときめく",
+                reading: "ときめく",
+                phase: 3,
+                category: "動詞",
+                meanings: ["ときめく", "胸が高鳴る", "寵愛を受ける"],
+                modernMeaning: "ときめく（心がときめく）",
+                pitfall: "△ 古文では「皇帝の寵愛を受ける」という意味もある",
+                examples: [
+                    "帝ときめきたまふ = 皇帝の寵愛を受けた"
+                ]
+            },
+            {
+                id: 113,
+                word: "消えぬ",
+                reading: "きえぬ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["消える", "なくなる"],
+                modernMeaning: "消える・きえる",
+                pitfall: "✅ 古文では人生や思いの無常を表す",
+                examples: [
+                    "露消えぬ = 露が消える"
+                ]
+            },
+            {
+                id: 114,
+                word: "いみじく",
+                reading: "いみじく",
+                phase: 3,
+                category: "副詞",
+                meanings: ["非常に", "極めて"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 「いみじき」の副詞形。感動や強調を表す",
+                examples: [
+                    "いみじく美し = 本当に美しい"
+                ]
+            },
+            {
+                id: 115,
+                word: "かなしむ",
+                reading: "かなしむ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["悲しむ", "嘆く"],
+                modernMeaning: "悲しむ・嘆く",
+                pitfall: "△ 古文では深い感情的な嘆きを表す",
+                examples: [
+                    "人生のはかなさをかなしむ = 人生の儚さを嘆く"
+                ]
+            },
+            {
+                id: 116,
+                word: "こころむ",
+                reading: "こころむ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["試す", "試みる", "確認する"],
+                modernMeaning: "試す・確認する",
+                pitfall: "△ 古文では「確認する」という意が強い",
+                examples: [
+                    "其の事こころみん = その事を確認しよう"
+                ]
+            },
+            {
+                id: 117,
+                word: "からし",
+                reading: "からし",
+                phase: 3,
+                category: "副詞・形容詞",
+                meanings: ["空しい", "むなしい"],
+                modernMeaning: "空しい・むなしい",
+                pitfall: "△ 古文では人生の無意味さを表す",
+                examples: [
+                    "からしき人生 = 空しい人生"
+                ]
+            },
+            {
+                id: 118,
+                word: "ほけぬ",
+                reading: "ほけぬ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["ぼける", "忘れる"],
+                modernMeaning: "ぼける・ほける",
+                pitfall: "✅ 古文では「老いて忘れる」の意",
+                examples: [
+                    "年ほけぬ = 年老いて忘れた"
+                ]
+            },
+            {
+                id: 119,
+                word: "くらぶ",
+                reading: "くらぶ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["比べる", "競う"],
+                modernMeaning: "比べる・競う",
+                pitfall: "✅ 古文では「優劣を比べる」という意",
+                examples: [
+                    "美しさくらぶ = 美しさを競う"
+                ]
+            },
+            {
+                id: 120,
+                word: "そぎ立つ",
+                reading: "そぎたつ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["削ぎ立つ", "際立つ"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の表現。際立つ、目立つの意",
+                examples: [
+                    "美しさそぎ立つ = 美しさが際立つ"
+                ]
+            },
+            {
+                id: 121,
+                word: "さかぬ",
+                reading: "さかぬ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["逆らう", "さからう"],
+                modernMeaning: "逆らう・さからう",
+                pitfall: "✅ 古文では命令や運命に逆らうことを表す",
+                examples: [
+                    "命さからふべからず = 命に逆らうべきではない"
+                ]
+            },
+            {
+                id: 122,
+                word: "さますも",
+                reading: "さますも",
+                phase: 3,
+                category: "動詞",
+                meanings: ["目を覚ます", "目覚める"],
+                modernMeaning: "覚ます・目覚める",
+                pitfall: "△ 古文では「夢から覚める」の比喩としても使う",
+                examples: [
+                    "夢さます = 夢から覚める"
+                ]
+            },
+            {
+                id: 123,
+                word: "かすかなり",
+                reading: "かすかなり",
+                phase: 3,
+                category: "形容詞",
+                meanings: ["ぼんやりしている", "微かである"],
+                modernMeaning: "ぼんやり・微か",
+                pitfall: "△ 古文では「光が微か」や「音が微か」を表す",
+                examples: [
+                    "灯かすかなり = 灯が微かだ"
+                ]
+            },
+            {
+                id: 124,
+                word: "あはあはし",
+                reading: "あはあはし",
+                phase: 3,
+                category: "形容詞",
+                meanings: ["心が浮つく", "落ち着きがない"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の表現。気が散った状態を表す",
+                examples: [
+                    "あはあはしき心 = 心が浮ついている"
+                ]
+            },
+            {
+                id: 125,
+                word: "あぢきなし",
+                reading: "あぢきなし",
+                phase: 3,
+                category: "形容詞",
+                meanings: ["つまらない", "虚しい", "つれない"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古典特有の美的評価。人生や恋愛の虚しさを表す",
+                examples: [
+                    "人生あぢきなし = 人生はつまらない・虚しい"
+                ]
+            },
+            {
+                id: 126,
+                word: "えも言はず",
+                reading: "えもいはず",
+                phase: 3,
+                category: "慣用句",
+                meanings: ["言葉に言い表せない", "筆舌に尽くしがたい"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文の重要な慣用句。美しさや感動が強い時に使う",
+                examples: [
+                    "えも言はず美し = 言葉に言い表せないほど美しい"
+                ]
+            },
+            {
+                id: 127,
+                word: "をかし圭角",
+                reading: "をかしけいかく",
+                phase: 3,
+                category: "慣用表現",
+                meanings: ["洒脱である", "粋である"],
+                modernMeaning: "存在しない",
+                pitfall: "❌ 古文の最高級の美的評価",
+                examples: [
+                    "をかし圭角なり = 本当に粋で素晴らしい"
+                ]
+            },
+            {
+                id: 128,
+                word: "えし",
+                reading: "えし",
+                phase: 3,
+                category: "動詞",
+                meanings: ["得た", "手に入れた"],
+                modernMeaning: "得た・えた",
+                pitfall: "✅ 古文では過去形の「得」",
+                examples: [
+                    "名えし = 名声を得た"
+                ]
+            },
+            {
+                id: 129,
+                word: "たてまつる",
+                reading: "たてまつる",
+                phase: 3,
+                category: "動詞",
+                meanings: ["差し上げる", "申し上げる（謙譲語）"],
+                modernMeaning: "差し上げる・申し上げる",
+                pitfall: "△ 古文では最高レベルの敬語表現",
+                examples: [
+                    "申したてまつる = お申し上げする"
+                ]
+            },
+            {
+                id: 130,
+                word: "さむらふ",
+                reading: "さむらふ",
+                phase: 3,
+                category: "動詞",
+                meanings: ["侍る", "仕える"],
+                modernMeaning: "侍る・さむらう",
+                pitfall: "✅ 古い敬語で「侍る」と同じ",
+                examples: [
+                    "君に斯くさむらふ = 主君にこのように仕える"
+                ]
+            },
+            {
+                id: 131,
+                word: "かうばかり",
+                reading: "かうばかり",
+                phase: 3,
+                category: "副詞",
+                meanings: ["このくらい", "これほど"],
+                modernMeaning: "このくらい・これほど",
+                pitfall: "△ 古文では程度の強調に使う",
+                examples: [
+                    "かうばかり美し = これほど美しい"
+                ]
+            },
+            {
+                id: 132,
+                word: "ここに",
+                reading: "ここに",
+                phase: 3,
+                category: "副詞",
+                meanings: ["ここに", "ここぞ"],
+                modernMeaning: "ここに・ここで",
+                pitfall: "△ 古文では「その時」「その場所」を指す",
+                examples: [
+                    "ここに月明し = ここに月が明らかだ"
+                ]
+            },
+            {
+                id: 133,
+                word: "いかぢ",
+                reading: "いかぢ",
+                phase: 3,
+                category: "副詞",
+                meanings: ["どんなに", "いかほど"],
+                modernMeaning: "どんなに・いくら",
+                pitfall: "❌ 古文では強調的な疑問を表す",
+                examples: [
+                    "いかぢ美しかるべき = どんなに美しいことか"
+                ]
+            },
+            {
+                id: 134,
+                word: "ぞ（詠嘆）",
+                reading: "ぞ",
+                phase: 3,
+                category: "助詞",
+                meanings: ["詠嘆", "感動"],
+                modernMeaning: "ぞ（古い詠嘆助詞）",
+                pitfall: "✅ 古文での最高レベルの感動を表す助詞",
+                examples: [
+                    "美しうこそあれぞ = 何と美しいことか"
+                ]
+            },
+            {
+                id: 135,
+                word: "かな",
+                reading: "かな",
+                phase: 3,
+                category: "助詞",
+                meanings: ["～かな", "詠嘆"],
+                modernMeaning: "かな（詠嘆助詞）",
+                pitfall: "✅ 古文では最後に付いて感動を表す",
+                examples: [
+                    "月何と美しかな = 月よ何と美しいことか"
+                ]
+            },
+            {
+                id: 136,
+                word: "もの",
+                reading: "もの",
+                phase: 3,
+                category: "名詞・助詞",
+                meanings: ["物", "者", "～から"],
+                modernMeaning: "物・もの",
+                pitfall: "△ 古文では複数の用法がある",
+                examples: [
+                    "美しき者 = 美しい女性"
+                ]
+            },
+            {
+                id: 137,
+                word: "かた",
+                reading: "かた",
+                phase: 3,
+                category: "名詞",
+                meanings: ["方", "側", "姿"],
+                modernMeaning: "方・かた",
+                pitfall: "△ 古文では「姿」「様子」の意",
+                examples: [
+                    "優雅なる姿かた = 優雅な姿・様子"
+                ]
+            },
+            {
+                id: 138,
+                word: "さま",
+                reading: "さま",
+                phase: 3,
+                category: "名詞",
+                meanings: ["様", "様子", "状態"],
+                modernMeaning: "様・さま",
+                pitfall: "✅ 古文でも現代語でも同じ",
+                examples: [
+                    "美しき様 = 美しい様子"
+                ]
+            },
+            {
+                id: 139,
+                word: "かぎり",
+                reading: "かぎり",
+                phase: 3,
+                category: "名詞",
+                meanings: ["限り", "極限"],
+                modernMeaning: "限り・かぎり",
+                pitfall: "✅ 古文では「限界」「最大限」を表す",
+                examples: [
+                    "美しきかぎり = 美しさの極限"
+                ]
+            },
+            {
+                id: 140,
+                word: "ひとへに",
+                reading: "ひとへに",
+                phase: 3,
+                category: "副詞",
+                meanings: ["ひたすら", "一途に"],
+                modernMeaning: "ひたすら・一途に",
+                pitfall: "✅ 古文では単一の感情や行為に集中することを表す",
+                examples: [
+                    "ひとへに恋す = ひたすら恋する"
+                ]
+            }
+        ];
+
+        // 学習管理変数
+        let currentSession = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let sessionStarted = false;
+        let userAnswers = {};
+        let masterList = {}; // 習得状況を記録 {wordId: correctCount}
+        let errorLog = {}; // 誤答ログ {wordId: [timestamp, timestamp, ...]}
+        let selectedLevel = 1; // 現在選択されているレベル（1-3）
+        let selectedPhase = 1; // 現在選択されているPhase（1-3）
+
+        // LocalStorageから学習データを復元
+        function loadProgress() {
+            const savedMaster = localStorage.getItem('kobunProgress');
+            if (savedMaster) {
+                masterList = JSON.parse(savedMaster);
+            }
+            
+            const savedErrors = localStorage.getItem('kobunErrors');
+            if (savedErrors) {
+                errorLog = JSON.parse(savedErrors);
+            }
+        }
+
+        // LocalStorageに学習データを保存
+        function saveProgress() {
+            localStorage.setItem('kobunProgress', JSON.stringify(masterList));
+            localStorage.setItem('kobunErrors', JSON.stringify(errorLog));
+        }
+
+        // 学習フェーズを選択
+        function selectPhase(phase) {
+            selectedPhase = phase;
+            
+            // タイトルを更新
+            const phaseInfo = {
+                1: "Phase 1 - 必出60語",
+                2: "Phase 2 - 重要50語",
+                3: "Phase 3 - 応用30語"
+            };
+            document.getElementById('phaseSubtitle').textContent = phaseInfo[phase];
+            
+            // UI更新：選択状態を表示（フェーズボタン）
+            const phaseButtons = document.querySelectorAll('.level-selector')[0]?.querySelectorAll('.level-btn') || [];
+            phaseButtons.forEach((btn, index) => {
+                if (index + 1 === phase) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 総単語数を更新
+            const phaseWords = getPhaseWords(phase);
+            const masteredInPhase = phaseWords.filter(w => masterList[w.id]).length;
+            document.getElementById('totalWordsStart').textContent = phaseWords.length;
+            document.getElementById('masteredStart').textContent = masteredInPhase;
+            
+            // 復習対象の表示を更新
+            updateRetryQueueDisplay();
+            
+            // 進捗表示を更新
+            updateProgressDisplay();
+        }
+
+        // 学習難度レベルを選択
+        function selectLevel(level) {
+            selectedLevel = level;
+            
+            // UI更新：選択状態を表示（難度ボタン）
+            const levelSelectors = document.querySelectorAll('.level-selector');
+            const levelButtons = levelSelectors[1]?.querySelectorAll('.level-btn') || [];
+            levelButtons.forEach((btn, index) => {
+                if (index + 1 === level) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // 選択されたPhaseの単語を取得するヘルパー関数
+        function getPhaseWords(phase) {
+            if (phase === 1) {
+                return vocabulary.filter(w => !w.phase);
+            } else {
+                return vocabulary.filter(w => w.phase === phase);
+            }
+        }
+
+        // 自動リトライキューを取得（誤答した単語を優先）
+        function buildRetryQueue() {
+            const retryList = [];
+            
+            // 選択されたPhaseの単語のみを対象
+            const phaseWords = getPhaseWords(selectedPhase);
+            
+            // 誤答3回以上の単語を最優先
+            phaseWords.forEach(word => {
+                const errorCount = errorLog[word.id]?.length || 0;
+                const masterCount = masterList[word.id] || 0;
+                
+                // 未習得（masterCount < 3）または誤答が多い単語を追加
+                if (masterCount < 3 || errorCount >= 3) {
+                    retryList.push({
+                        word: word,
+                        priority: errorCount * 10 + (3 - Math.min(masterCount, 3))
+                    });
+                }
+            });
+            
+            // 優先度でソート（高いほど先）
+            retryList.sort((a, b) => b.priority - a.priority);
+            
+            return retryList.map(item => item.word);
+        }
+
+        // リトライキューの状態を表示
+        function updateRetryQueueDisplay() {
+            const retryQueue = buildRetryQueue();
+            const display = document.getElementById('retryQueueDisplay');
+            
+            if (retryQueue.length > 0) {
+                display.style.display = 'block';
+                document.getElementById('retryCount').textContent = retryQueue.length;
+                
+                // 現在のPhaseの全体の誤答率を計算
+                const phaseWords = getPhaseWords(selectedPhase);
+                let totalErrors = 0;
+                let totalAttempts = 0;
+                phaseWords.forEach(word => {
+                    const errorCount = errorLog[word.id]?.length || 0;
+                    const masterCount = masterList[word.id] || 0;
+                    totalErrors += errorCount;
+                    totalAttempts += errorCount + masterCount;
+                });
+                
+                const errorRate = totalAttempts > 0 ? Math.round((totalErrors / totalAttempts) * 100) : 0;
+                document.getElementById('errorRate').textContent = errorRate;
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        // ページ読み込み時の初期化
+        function initializePage() {
+            loadProgress();
+            selectPhase(1); // Phase 1をデフォルト選択してタイトルを更新
+            updateProgressDisplay();
+            updateRetryQueueDisplay();
+            displayStartScreen();
+        }
+
+        // 学習セッションの開始
+        function startSession() {
+            sessionStarted = true;
+            correctCount = 0;
+            currentQuestionIndex = 0;
+            userAnswers = {};
+
+            // 選択されたPhaseの単語を抽出
+            const phaseWords = getPhaseWords(selectedPhase);
+
+            // リトライキューがあれば優先、なければランダムに選択
+            const retryQueue = buildRetryQueue();
+            let sessionWords = [];
+            
+            if (retryQueue.length > 0) {
+                // リトライキューから選択
+                sessionWords = retryQueue.slice(0, 5);
+            } else {
+                // ランダムに選択
+                sessionWords = [...phaseWords].sort(() => Math.random() - 0.5).slice(0, 5);
+            }
+            
+            currentSession = sessionWords;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('show');
+            document.getElementById('quizContainer').classList.add('active');
+
+            displayQuestion();
+        }
+
+        // 問題を表示
+        function displayQuestion() {
+            const question = currentSession[currentQuestionIndex];
+            const errorCount = errorLog[question.id]?.length || 0;
+            
+            document.getElementById('questionNum').textContent = `Phase ${selectedPhase} | 問題 ${currentQuestionIndex + 1} / 5 (Lv.${selectedLevel})`;
+            document.getElementById('wordDisplay').textContent = question.word;
+            document.getElementById('wordReading').textContent = `（${question.reading}）`;
+            document.getElementById('wordCategory').textContent = question.category;
+
+            // レベルに応じた問題を表示
+            if (selectedLevel === 1) {
+                displayLevel1(question);
+            } else if (selectedLevel === 2) {
+                displayLevel2(question);
+            } else if (selectedLevel === 3) {
+                displayLevel3(question);
+            }
+
+            // 誤答があれば警告を表示
+            if (errorCount > 0) {
+                const errorTracking = document.querySelector('.error-tracking');
+                if (errorTracking) {
+                    errorTracking.style.display = 'block';
+                    errorTracking.innerHTML = `<div class="error-count">⚠️ この単語は${errorCount}回誤答しています</div>`;
+                } else {
+                    const feedback = document.getElementById('feedback');
+                    feedback.insertAdjacentHTML('beforebegin', 
+                        `<div class="error-tracking"><div class="error-count">⚠️ この単語は${errorCount}回誤答しています</div></div>`);
+                }
+            }
+
+            // フィードバックをリセット
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('buttonGroup').style.display = 'none';
+        }
+
+        // レベル1：4択問題
+        function displayLevel1(question) {
+            document.getElementById('questionText').textContent = `「${question.word}」の古文での主な意味は？`;
+            generateOptions(question);
+        }
+
+        // レベル2：穴埋め問題
+        function displayLevel2(question) {
+            const container = document.getElementById('questionText');
+            const example = question.examples[0] || "例文がありません";
+            
+            // 例文から「=」の前の部分を取得
+            const [exampleText, meaning] = example.split(' = ');
+            
+            container.innerHTML = `
+                <div class="fill-in-question">
+                    <div style="margin-bottom: 12px;">次の古文の空欄に入る意味として最も適切なものは？</div>
+                    <div style="font-size: 14px; line-height: 1.8;">
+                        「${exampleText}」<br>
+                        = 「～${question.meanings[0]}～」
+                    </div>
+                </div>
+            `;
+            
+            // 選択肢：4つの異なる意味から選ぶ
+            generateMultipleMeaningOptions(question);
+        }
+
+        // レベル3：文脈問題
+        function displayLevel3(question) {
+            const container = document.getElementById('questionText');
+            const example = question.examples[0] || "例文がありません";
+            const [exampleText, meaning] = example.split(' = ');
+            
+            container.innerHTML = `
+                <div class="context-question">
+                    <div class="context-title">文脈判定問題</div>
+                    <div class="context-text">
+                        古文：「<span class="context-highlight">${exampleText}</span>」
+                    </div>
+                    <div class="context-question-text">
+                        この文における「${question.word}」の意味として最も適切なものは？
+                    </div>
+                </div>
+            `;
+            
+            // 選択肢：意味 + 用法を含める
+            generateContextOptions(question);
+        }
+
+        // 複数意味から選ぶ（レベル2用）
+        function generateMultipleMeaningOptions(question) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            // 他の単語から異なる意味を3つ取得
+            const wrongAnswers = generateWrongAnswers(question);
+            const allOptions = [question.meanings[0], ...wrongAnswers];
+            
+            // 最初の4つをシャッフル
+            const shuffledOptions = allOptions.slice(0, 4).sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach((option, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)}</span>
+                    <span>${option}</span>
+                `;
+                btn.onclick = () => selectOption(question, option, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // 文脈オプション（レベル3用）
+        function generateContextOptions(question) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const contextOptions = [
+                { meaning: question.meanings[0] },
+                { meaning: question.meanings[1] || question.modernMeaning },
+                { meaning: generateWrongAnswers(question)[0] },
+                { meaning: generateWrongAnswers(question)[1] }
+            ];
+
+            const shuffled = contextOptions.sort(() => Math.random() - 0.5);
+
+            shuffled.forEach((option, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)}</span>
+                    <span>${option.meaning}</span>
+                `;
+                btn.onclick = () => selectOption(question, option.meaning, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // 選択肢を生成
+        function generateOptions(question) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            // 正答と4つの選択肢を用意
+            const allOptions = [question.meanings[0], ...generateWrongAnswers(question)];
+            const shuffledOptions = allOptions.sort(() => Math.random() - 0.5).slice(0, 4);
+
+            shuffledOptions.forEach((option, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)}</span>
+                    <span>${option}</span>
+                `;
+                btn.onclick = () => selectOption(question, option, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // 不正答を生成
+        function generateWrongAnswers(question) {
+            // 他の単語の意味から不正答を取得
+            const wrongAnswers = new Set();
+            const usedWords = new Set([question.id]);
+
+            // 他の単語から3つの異なる意味を取得
+            while (wrongAnswers.size < 3) {
+                let randomWord = null;
+                let attempts = 0;
+                
+                // 最大10回まで試して、異なる単語を探す
+                while (attempts < 10) {
+                    const candidate = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+                    if (!usedWords.has(candidate.id) && candidate.meanings[0] !== question.meanings[0]) {
+                        randomWord = candidate;
+                        usedWords.add(candidate.id);
+                        break;
+                    }
+                    attempts++;
+                }
+                
+                if (randomWord) {
+                    // 正答と絶対に重複しない意味を追加
+                    if (!wrongAnswers.has(randomWord.meanings[0]) && 
+                        randomWord.meanings[0] !== question.meanings[0]) {
+                        wrongAnswers.add(randomWord.meanings[0]);
+                    }
+                }
+            }
+
+            return Array.from(wrongAnswers);
+        }
+
+        // 選択肢をクリックした時
+        function selectOption(question, selectedMeaning, element) {
+            const isCorrect = selectedMeaning === question.meanings[0];
+            userAnswers[currentQuestionIndex] = { selected: selectedMeaning, correct: isCorrect };
+
+            if (isCorrect) {
+                correctCount++;
+                element.classList.add('correct');
+                masterList[question.id] = (masterList[question.id] || 0) + 1;
+            } else {
+                element.classList.add('incorrect');
+                
+                // 誤答をログに記録
+                if (!errorLog[question.id]) {
+                    errorLog[question.id] = [];
+                }
+                errorLog[question.id].push(new Date().getTime());
+            }
+
+            // 全ての選択肢を無効化
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.add('disabled');
+            });
+
+            // 正答を表示
+            document.querySelectorAll('.option').forEach(opt => {
+                if (opt.textContent.includes(question.meanings[0])) {
+                    opt.classList.add('correct');
+                }
+            });
+
+            // フィードバックを表示
+            showFeedback(question, isCorrect);
+
+            // 次へボタンを表示
+            document.getElementById('buttonGroup').style.display = 'flex';
+        }
+
+        // フィードバックを表示
+        function showFeedback(question, isCorrect) {
+            const feedback = document.getElementById('feedback');
+            const title = document.getElementById('feedbackTitle');
+            const text = document.getElementById('feedbackText');
+            const explanation = document.getElementById('explanation');
+
+            if (isCorrect) {
+                feedback.classList.add('correct');
+                title.textContent = '✅ 正解！';
+                text.textContent = `「${question.word}」は「${question.meanings[0]}」が正しい意味です。`;
+            } else {
+                feedback.classList.add('incorrect');
+                title.textContent = '❌ 不正解';
+                text.textContent = `「${question.word}」の正しい意味は「${question.meanings[0]}」です。`;
+            }
+
+            // 解説を表示
+            let explanationHtml = `
+                <div class="explanation-row">
+                    <span class="explanation-label">古文:</span>
+                    <span class="explanation-text">${question.meanings[0]}</span>
+                </div>
+                <div class="explanation-row">
+                    <span class="explanation-label">現代語:</span>
+                    <span class="explanation-text">${question.modernMeaning}</span>
+                </div>
+                <div class="explanation-row">
+                    <span class="explanation-label">ポイント:</span>
+                    <span class="explanation-text">${question.pitfall}</span>
+                </div>
+            `;
+
+            if (question.examples.length > 0) {
+                explanationHtml += `
+                    <div class="explanation-row">
+                        <span class="explanation-label">例文:</span>
+                        <span class="explanation-text">${question.examples[0]}</span>
+                    </div>
+                `;
+            }
+
+            explanation.innerHTML = explanationHtml;
+            feedback.classList.add('show');
+        }
+
+        // 次の問題へ
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentSession.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // 結果を表示
+        function showResults() {
+            saveProgress();
+            updateProgressDisplay();
+
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('show');
+
+            const resultScore = document.getElementById('resultScore');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultIcon = document.getElementById('resultIcon');
+
+            resultScore.textContent = `${correctCount}/5`;
+
+            if (correctCount === 5) {
+                resultIcon.textContent = '🎉';
+                resultTitle.textContent = 'パーフェクト！';
+                resultMessage.textContent = '5問すべて正解！素晴らしい調子で学習を続けましょう。';
+            } else if (correctCount >= 4) {
+                resultIcon.textContent = '👍';
+                resultTitle.textContent = 'よくできました！';
+                resultMessage.textContent = `${correctCount}問正解。もう一度セッションをしてみましょう。`;
+            } else if (correctCount >= 3) {
+                resultIcon.textContent = '💪';
+                resultTitle.textContent = 'なかなか頑張ってますね';
+                resultMessage.textContent = `${correctCount}問正解。反復学習で着実に定着させましょう。`;
+            } else {
+                resultIcon.textContent = '🔥';
+                resultTitle.textContent = 'まだ始まったばかり';
+                resultMessage.textContent = `${correctCount}問正解。毎日コツコツ学習して定着させましょう。`;
+            }
+
+            // 今日のセッション数をカウント
+            const today = new Date().toDateString();
+            const todayKey = `session_${today}`;
+            const sessionCount = (parseInt(localStorage.getItem(todayKey)) || 0) + 1;
+            localStorage.setItem(todayKey, sessionCount.toString());
+        }
+
+        // 結果画面から元に戻る
+        function returnToStart() {
+            document.getElementById('resultScreen').classList.remove('show');
+            document.getElementById('startScreen').classList.remove('hidden');
+            sessionStarted = false;
+            updateProgressDisplay();
+            updateRetryQueueDisplay();
+        }
+
+        // 進捗表示を更新
+        function updateProgressDisplay() {
+            // 選択されたPhaseの単語を対象に計算
+            const phaseWords = getPhaseWords(selectedPhase);
+            const masteredCount = phaseWords.filter(w => masterList[w.id]).length;
+            const totalWords = phaseWords.length;
+            const percentage = Math.round((masteredCount / totalWords) * 100);
+
+            document.getElementById('totalMastered').textContent = masteredCount;
+            document.getElementById('totalWords').textContent = totalWords;
+            document.getElementById('totalWordsStart').textContent = totalWords;
+            document.getElementById('masteredStart').textContent = masteredCount;
+
+            // 進捗バーを更新
+            document.getElementById('dailyProgressFill').style.width = percentage + '%';
+
+            // 今日正解した問題数を表示
+            const today = new Date().toDateString();
+            const todayKey = `session_${today}`;
+            const todayCorrect = parseInt(localStorage.getItem(`correct_${today}`) || '0');
+            document.getElementById('dailyCorrect').textContent = correctCount;
+
+            // 今日のセッション残数を計算
+            const sessionCount = parseInt(localStorage.getItem(todayKey)) || 0;
+            const todayGoal = Math.max(0, 20 - (sessionCount * 5));
+            document.getElementById('todayGoal').textContent = todayGoal;
+        }
+
+        // スタート画面を表示
+        function displayStartScreen() {
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('resultScreen').classList.remove('show');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        // 詳細統計を表示（ダミー）
+        function viewStats() {
+            alert(`本日の学習:\n正解: ${correctCount}問\n習得語数: ${Object.keys(masterList).length}/${vocabulary.length}語\n\n定期的な学習を続けることで、古文単語が着実に定着します！`);
+        }
+
+        // ページロード時に初期化
+        window.addEventListener('load', initializePage);
+    </script>
+</body>
+</html>
