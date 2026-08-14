@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高校受験 中学古文単語マスター Phase 1 (必出60語)</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .underlined {
+            text-decoration: underline;
+            text-decoration-color: var(--secondary-color);
+            text-decoration-thickness: 3px;
+            font-weight: bold;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option-btn {
+            text-align: left;
+            background: white;
+            color: var(--text-color);
+            border: 2px solid #e2e8f0;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-color);
+            background: #f0f8ff;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #eef6fc;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .next-btn {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #1a252f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>高校受験 古文単語 Phase 1 (必出60語)</h1>
+
+    <div class="controls">
+        <select id="levelSelect">
+            <option value="1">Lv.1 基本（単語の意味）</option>
+            <option value="2">Lv.2 標準（文脈での意味）</option>
+            <option value="3">Lv.3 実戦（現代語訳穴埋め）</option>
+        </select>
+        <button id="startBtn">スタート</button>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="quizArea" style="display:none;">
+        <div class="card">
+            <span class="level-badge" id="levelBadge">Lv.1</span>
+            <div class="question-text" id="questionText">問題文がここに入ります</div>
+            <div class="options-grid" id="optionsGrid"></div>
+            <div class="explanation" id="explanationBox"></div>
+            <button class="next-btn" id="nextBtn">次の問題へ ➔</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- 校正済み Phase 1 単語データ (60語) ---
+const wordsData = [
+    { id: 1, word: "いと", mean: "たいへん・とても", example: "いと高し", translate: "とても高い", exp: "強調を表す副詞。「非常に」の意味。" },
+    { id: 2, word: "あはれなり", mean: "しみじみとした情趣がある・愛おしい", example: "あはれなる景色", translate: "しみじみと心を打たれる景色", exp: "感動を表す言葉。場面によって「しみじみ深い」「かわいらしい」などの意味になる。" },
+    { id: 3, word: "をかし", mean: "趣がある・すばらしい・おかしい", example: "いとをかし", translate: "とても趣がある", exp: "知的な感動や明るい美しさを表す。『枕草子』の美的理念。" },
+    { id: 4, word: "かなし", mean: "愛おしい・かわいい", example: "かなしと思ふ", translate: "愛おしいと思う", exp: "現代語の「悲しい」ではなく、「愛しい（いとおしい）」の意味で頻出。" },
+    { id: 5, word: "うつくし", mean: "かわいらしい", example: "いとうつくしき子", translate: "とてもかわいらしい子", exp: "幼いものや小さなものを「かわいい」と愛でる気持ちを表す。" },
+    { id: 6, word: "ありがたし", mean: "滅多にない・めずらしい", example: "ありがたき物", translate: "滅多にないめずらしい物", exp: "「有ること（存在すること）が難し」が語源。" },
+    { id: 7, word: "めでたし", mean: "素晴らしい・立派だ", example: "めでたき姿", translate: "素晴らしい姿", exp: "「愛づ（感嘆する）」＋「甚し（著しい）」から。最高級のほめ言葉。" },
+    { id: 8, word: "やがて", mean: "そのまま・すぐに", example: "やがて起きぬ", translate: "そのまま起きなかった", exp: "時間の経過を示す。「直ちに」または「変化なくそのまま」の2パターン。" },
+    { id: 9, word: "いつしか", mean: "早く・いつの間にか", example: "いつしか花咲かむ", translate: "早く花が咲いてほしい", exp: "「いつしか〜（願望）」で「早く〜してほしい」となる。" },
+    { id: 10, word: "あさまし", mean: "驚きあきれるばかりだ", example: "あさましく思ふ", translate: "驚きあきれて思う", exp: "予想外の出来事にショックを受け、呆然とする様子。" },
+    { id: 11, word: "あやし", mean: "不思議だ・身分が低い・粗末だ", example: "あやしき光", translate: "不思議な光", exp: "【怪し】不思議だ、【賤し】身分が低い・粗末だ の両方を押さえる。" },
+    { id: 12, word: "おどろく", mean: "目を覚ます・気づく", example: "夜半におどろく", translate: "夜中に目を覚ます", exp: "ハッと意識がはっきりすること。「ハッと気づく」「目が覚める」。" },
+    { id: 13, word: "ののしる", mean: "大声で騒ぐ・評判になる", example: "世にののしる", translate: "世間で評判になっている", exp: "現代語のように「悪口を言う」ではなく「大騒ぎする」の意味。" },
+    { id: 14, word: "念ず", mean: "我慢する・祈る", example: "痛きを念ず", translate: "痛みを我慢する", exp: "口をかみしめて我慢する、または心の中で祈る。" },
+    { id: 15, word: "覚ゆ", mean: "思われる・似ている", example: "母に覚ゆ", translate: "母に似ている", exp: "自然と心に浮かぶ（思われる）、面影が似ている。" },
+    { id: 16, word: "しのぶ", mean: "我慢する・人目を忍ぶ", example: "思いをしのぶ", translate: "思いを我慢する", exp: "【忍ぶ】耐える・隠れる、【偲ぶ】懐かしむ。" },
+    { id: 17, word: "こころづきなし", mean: "気にくわない・不快だ", example: "こころづきなく思ふ", translate: "気にくわないと思う", exp: "心に引きつけられない、なんとなく嫌だという気持ち。" },
+    { id: 18, word: "ゆかし", mean: "見たい・聞きたい・知りたい", example: "見まほしくゆかし", translate: "見たくて知りたい", exp: "心が引きつけられて「〜したい」と思う気持ち。" },
+    { id: 19, word: "むつかし", mean: "不快だ・うっとうしい", example: "むつかしき気色", translate: "不快な様子", exp: "「難しい」ではなく、気分が不快で嫌な様子。" },
+    { id: 20, word: "いみじ", mean: "とても・素晴らしい・ひどい", example: "いみじく嬉し", translate: "非常に嬉しい", exp: "プラス（良い）にもマイナス（悪い）にも使われる強い強調表現。" },
+    { id: 21, word: "おぼつかなし", mean: "はっきりしない・不安だ", example: "おぼつかなく思ふ", translate: "不安に思う", exp: "状態がぼやけていて、気がかりで不安な様子。" },
+    { id: 22, word: "心もとなし", mean: "じれったい・待ち遠しい", example: "心もとなく待つ", translate: "じれったく待つ", exp: "先が気になって心が落ち着かない様子。" },
+    { id: 23, word: "つくづくと", mean: "しんみりと・つくづくと", example: "つくづくと物思ふ", translate: "しんみりと物思いにふける", exp: "静かに深く考え込む様子。" },
+    { id: 24, word: "げに", mean: "なるほど・本当に", example: "げにやさしき人", translate: "なるほど風流な人だ", exp: "相手の言葉に深く納得・共感する副詞。" },
+    { id: 25, word: "いさ", mean: "さあ（どうだか分からない）", example: "いさ、知らず", translate: "さあ、分からない", exp: "躊躇（ちゅうちょ）したり、返答を濁したりする感動詞。" },
+    { id: 26, word: "よも〜じ", mean: "まさか〜ないだろう", example: "よも来じ", translate: "まさか来ないだろう", exp: "打ち消しの推量を強める呼応の修飾表現。" },
+    { id: 27, word: "さらに〜打ち消し", mean: "まったく〜ない", example: "さらに知らず", translate: "まったく知らない", exp: "全否定の呼応表現（さらに〜打消）。" },
+    { id: 28, word: "いかで", mean: "どうして・なんとかして", example: "いかで参らむ", translate: "なんとかして参上したい", exp: "疑問・反語（どうして）と願望（なんとかして）の２つのパターンがある。" },
+    { id: 29, word: "など", mean: "どうして", example: "など泣くぞ", translate: "どうして泣くのか", exp: "「などか」「などの」の形で疑問・反語を表す。" },
+    { id: 30, word: "な〜そ", mean: "〜するな（禁止）", example: "な言いそ", translate: "言うな", exp: "柔らかい禁止の表現。「な〜そ」。" },
+    { id: 31, word: "文", mean: "手紙・漢詩文", example: "文を書きて送る", translate: "手紙を書いて送る", exp: "古文で「文（ふみ）」といえば第一に「手紙」のこと。" },
+    { id: 32, word: "消息", mean: "手紙・訪問", example: "消息を遣る", translate: "手紙を送る", exp: "「しょうそこ」と読む。連絡や手紙のこと。" },
+    { id: 33, word: "情け", mean: "思いやり・風流な心", example: "情けある人", translate: "思いやりがあり風流な人", exp: "単なる優しさだけでなく、自然や芸術を理解する「風流心」も含む。" },
+    { id: 34, word: "あまた", mean: "たくさん", example: "あまたの人が集まる", translate: "たくさんの人が集まる", exp: "数が多い様子。「数多（あまた）」。" },
+    { id: 35, word: "そこばく", mean: "たくさん", example: "そこばくの宝", translate: "たくさんの宝", exp: "数量が多いこと。「あまた」と同義。" },
+    { id: 36, word: "そらなり", mean: "うわの空だ・暗記している", example: "そらなることを言ふ", translate: "嘘の（いい加減な）ことを言う", exp: "心がしっかり定まっていない様子、またはそらんじている（暗記）様子。" },
+    { id: 37, word: "おろかなり", mean: "おろそかだ・いい加減だ", example: "おろかにす", translate: "おろそかにする", exp: "「愚かだ」という意味よりも「粗末だ・いい加減だ」という意味で出る。" },
+    { id: 38, word: "ねんごろなり", mean: "丁寧だ・親しい", example: "ねんごろに調べる", translate: "丁寧に調べる", exp: "心をこめて親密にする様子。" },
+    { id: 39, word: "つれづれなり", mean: "手持ちぶさただ・退屈だ", example: "つれづれなるままに", translate: "やることもなく退屈なのにまかせて", exp: "『徒然草』冒頭で有名な単語。" },
+    { id: 40, word: "徒然（つれづれ）", mean: "退屈・手持ちぶさた", example: "徒然を慰む", translate: "退屈をまぎらわす", exp: "「つれづれなり」の名詞形。" },
+    { id: 41, word: "徒らなり（いたづらなり）", mean: "無駄だ・退屈だ", example: "いたづらになす", translate: "無駄にする", exp: "役に立たないこと。無駄になること。" },
+    { id: 42, word: "徒に（いたづらに）", mean: "むなしく・無駄に", example: "いたづらに過ぐ", translate: "むなしく時を過ごす", exp: "副詞的になにも成果なく終わる様子。" },
+    { id: 43, word: "年ごろ", mean: "長年・数年来", example: "年ごろの望み", translate: "長年の願い", exp: "「年頃（頃合い）」ではなく「数年間のあいだ」の意味。" },
+    { id: 44, word: "日ごろ", mean: "数日来・数日の間", example: "日ごろの思い", translate: "数日間の思い", exp: "ここ数日の間。" },
+    { id: 45, word: "月ごろ", mean: "数ヶ月の間", example: "月ごろ病む", translate: "数ヶ月の間病気である", exp: "ここ数ヶ月の間。" },
+    { id: 46, word: "便り", mean: "都合の良い機会・手段・手紙", example: "便りありて行く", translate: "機会があって行く", exp: "ついで、好都合、手紙などの便利な手段。" },
+    { id: 47, word: "ついで", mean: "順序・機会", example: "ついでを追ふ", translate: "順序を追う", exp: "物事の順番、または何かのきっかけ（機会）。" },
+    { id: 48, word: "様（さま）", mean: "様子・姿・理由", example: "様を変ふ", translate: "出家する（姿を変える）", exp: "姿形やありさま。「様を変ふ」で出家するの意味。" },
+    { id: 49, word: "気色（けしき）", mean: "様子・機嫌・意向", example: "人の気色を見る", translate: "人のご機嫌（顔色）をうかがう", exp: "目に見える様子や、人の表情・機嫌。" },
+    { id: 50, word: "すさまじ", mean: "興ざめだ・殺風景だ", example: "すさまじき冬の夜", translate: "殺風景で寒々しい冬の夜", exp: "期待が外れてガッカリする、または寒々しい様子。" },
+    { id: 51, word: "びんばし（便なし）", mean: "都合が悪い・困ったことだ", example: "便なく思ふ", translate: "都合が悪いと思う", exp: "「便り（都合）」が無い、つまり不都合だということ。" },
+    { id: 52, word: "わびし", mean: "つらい・やるせない", example: "わびしく暮らす", translate: "つらく過ごす", exp: "思い通りにならず、困り果ててつらい様子。" },
+    { id: 53, word: "あたらし", mean: "惜しい・勿体ない", example: "あたらしき命", translate: "惜しい命", exp: "「新しい」ではなく「新し（惜しい）」と覚える。" },
+    { id: 54, word: "口惜し（くちをし）", mean: "残念だ・心残りだ", example: "口惜しく思ふ", translate: "残念に思う", exp: "期待通りにいかず悔しい、がっかりだ。" },
+    { id: 55, word: "おぼえ", mean: "評判・寵愛（受けが良いこと）", example: "帝のおぼえ有名なり", translate: "天皇からの寵愛が素晴らしい", exp: "世間の評判、または目上の人からの覚え（愛されること）。" },
+    { id: 56, word: "あながちに", mean: "強引だ・一途だ", example: "あながちに引き留む", translate: "強引に引き留める", exp: "無理やりに、または一筋に思い込む様子。" },
+    { id: 57, word: "いとど", mean: "いっそう・ますます", example: "いとど深し", translate: "いっそう深い", exp: "度合いがさらに増す様子を表す副詞。" },
+    { id: 58, word: "おのづから", mean: "自然と・たまたま・万一", example: "おのづから知る", translate: "自然と知るようになる", exp: "自然に、偶然に、もしも（仮定）の3つの意味を持つ。" },
+    { id: 59, word: "けち", mean: "怪しいこと・異変", example: "けち起こる", translate: "怪しいことが起こる", exp: "現代語の「けち（不景気・ケチ）」とは異なり、不吉な兆しのこと。" },
+    { id: 60, word: "そこ", mean: "あなた", example: "そこは何処へ行く", translate: "あなたはこちらへどこへ行くのか", exp: "二人称代名詞。「あなた」を指す言葉。" }
+];
+
+const distractorBank = [
+    "みっともない", "思いがけない", "強引だ", "不吉だ", 
+    "一途だ", "ぼんやりしている", "情けない", "礼儀正しい", 
+    "退屈だ", "浅はかだ", "生意気だ", "誇らしい"
+];
+
+let currentLevel = 1;
+let currentQuestionIndex = 0;
+let score = 0;
+let shuffledWords = [];
+
+const levelSelect = document.getElementById('levelSelect');
+const startBtn = document.getElementById('startBtn');
+const quizArea = document.getElementById('quizArea');
+const questionText = document.getElementById('questionText');
+const optionsGrid = document.getElementById('optionsGrid');
+const explanationBox = document.getElementById('explanationBox');
+const nextBtn = document.getElementById('nextBtn');
+const progressFill = document.getElementById('progressFill');
+const levelBadge = document.getElementById('levelBadge');
+
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+startBtn.addEventListener('click', () => {
+    currentLevel = parseInt(levelSelect.value);
+    shuffledWords = shuffleArray(wordsData);
+    currentQuestionIndex = 0;
+    score = 0;
+    quizArea.style.display = 'block';
+    renderQuestion();
+});
+
+function renderQuestion() {
+    explanationBox.style.display = 'none';
+    nextBtn.style.display = 'none';
+    optionsGrid.innerHTML = '';
+
+    const qData = shuffledWords[currentQuestionIndex];
+    levelBadge.textContent = `Phase 1 - Lv.${currentLevel}`;
+
+    const progress = ((currentQuestionIndex) / shuffledWords.length) * 100;
+    progressFill.style.width = `${progress}%`;
+
+    let correctAnswer = qData.mean;
+
+    if (currentLevel === 1) {
+        questionText.innerHTML = `「<span class="underlined">${qData.word}</span>」の意味として最も適切なものを選びなさい。`;
+    } else if (currentLevel === 2) {
+        const highlightedExample = qData.example.replace(qData.word, `<span class="underlined">${qData.word}</span>`);
+        questionText.innerHTML = `次の文中の「${highlightedExample}」の意味を選びなさい。`;
+    } else if (currentLevel === 3) {
+        questionText.innerHTML = `【例文】${qData.example}<br>【訳】<span class="underlined">【 空欄 】</span><br><br>上の現代語訳の【 空欄 】に入る最も適切な言葉を選びなさい。`;
+    }
+
+    const options = [correctAnswer];
+    let otherMeans = wordsData.filter(w => w.id !== qData.id).map(w => w.mean);
+    otherMeans = shuffleArray([...otherMeans, ...distractorBank]);
+
+    while (options.length < 4) {
+        let dummy = otherMeans.pop();
+        if (!options.includes(dummy)) {
+            options.push(dummy);
+        }
+    }
+
+    const shuffledOptions = shuffleArray(options);
+
+    shuffledOptions.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => checkAnswer(opt, correctAnswer, qData, btn));
+        optionsGrid.appendChild(btn);
+    });
+}
+
+function checkAnswer(selectedOpt, correctOpt, qData, clickedBtn) {
+    const buttons = optionsGrid.querySelectorAll('.option-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (selectedOpt === correctOpt) {
+        clickedBtn.classList.add('correct');
+        score++;
+    } else {
+        clickedBtn.classList.add('wrong');
+        buttons.forEach(btn => {
+            if (btn.textContent === correctOpt) {
+                btn.classList.add('correct');
+            }
+        });
+    }
+
+    explanationBox.innerHTML = `
+        <strong>【解説】</strong><br>
+        <strong>正解：</strong>${qData.mean}<br>
+        <strong>例文：</strong>${qData.example}（${qData.translate}）<br>
+        <strong>ポイント：</strong>${qData.exp}
+    `;
+    explanationBox.style.display = 'block';
+    nextBtn.style.display = 'block';
+}
+
+nextBtn.addEventListener('click', () => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < shuffledWords.length) {
+        renderQuestion();
+    } else {
+        finishQuiz();
+    }
+});
+
+function finishQuiz() {
+    progressFill.style.width = '100%';
+    questionText.innerHTML = `🎉 演習終了！`;
+    optionsGrid.innerHTML = `
+        <div style="text-align:center; padding:20px;">
+            <p style="font-size:1.2rem;">Phase 1 (60語) の演習が完了しました。</p>
+            <p style="font-size:1.5rem; font-weight:bold; color:var(--accent-color);">
+                スコア: ${score} / ${shuffledWords.length} 問正解
+            </p>
+        </div>
+    `;
+    explanationBox.style.display = 'none';
+    nextBtn.style.display = 'none';
+}
+
+</script>
+
+</body>
+</html>
