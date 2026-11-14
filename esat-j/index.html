@@ -3,7 +3,7 @@
 </style></head><body><header><div class="eyebrow">TOKYO SPEAKING PRACTICE · ORIGINAL</div><h1>ESAT-J YEAR 3 200問演習</h1><p>聞く・話す・録音する・参考採点で慣れる</p></header><main>
 <section class="panel hero" id="home"><div class="row between"><div><span class="pill">11月22日の試験対策</span><h2 style="margin-top:12px">今日は、英語を声に出そう。</h2><div class="muted">A 30問 / B 100問 / C 30問 / D 40問<br>1問ずつ練習するか、本番と同じ9問構成に挑戦。</div></div><div style="font-size:55px">🎧</div></div><div class="separator"></div><div class="row between"><div class="stats" id="stats">学習記録を読み込み中…</div><button class="btn alt" onclick="startMock()">9問 模擬テスト</button></div></section>
 <section class="panel"><h3>パートを選んで練習</h3><div class="grid" id="parts"></div><div class="row between" style="margin-top:17px"><label class="small">問題番号 <select id="number" onchange="chooseNumber()"></select></label><div class="row"><label class="small"><input type="checkbox" id="shuffle" checked> 次はランダム</label><button class="btn alt" onclick="nextQuestion()">次の問題 →</button></div></div></section>
-<section class="panel" id="work"><div class="row between"><div class="row"><span class="pill" id="partPill">Part A</span><b id="qnumber">問題 1 / 30</b></div><div class="stats" id="mode">単独練習</div></div><p class="muted" id="instruction"></p><div id="question"></div><div id="visual"></div><div class="row between" style="margin-top:18px"><div><div class="stats">解答残り時間</div><div class="timer" id="timer">00:30</div></div><div style="flex:1;min-width:120px"><div class="progress"><div id="progress"></div></div><div class="stats" id="status" style="margin-top:7px">マイクを準備してください</div></div></div><div class="row" style="margin-top:15px"><button class="btn alt" id="listen" onclick="speakQuestion()">🔊 問題を聞く</button><button class="btn green big" id="record" onclick="toggleRecord()">🎙️ 回答を開始</button><button class="btn warn hidden" id="stop" onclick="stopAll(true)">■ 回答終了</button></div><p class="muted small" id="micInfo">録音・音声認識にはマイクの許可が必要です。Google Chrome推奨。</p><audio id="playback" controls class="hidden" style="width:100%;margin-top:10px"></audio></section>
+<section class="panel" id="work"><div class="row between"><div class="row"><span class="pill" id="partPill">Part A</span><b id="qnumber">問題 1 / 30</b></div><div class="stats" id="mode">単独練習</div></div><p class="muted" id="instruction"></p><div id="question"></div><div id="visual"></div><div class="row between" style="margin-top:18px"><div><div class="stats">解答残り時間</div><div class="timer" id="timer">00:30</div></div><div style="flex:1;min-width:120px"><div class="progress"><div id="progress"></div></div><div class="stats" id="status" style="margin-top:7px">マイクを準備してください</div></div></div><div class="row" style="margin-top:15px"><button class="btn alt" id="listen" onclick="speakQuestion()">🔊 問題を聞く</button><button class="btn green big" id="record" onclick="toggleRecord()">🎙️ 回答を開始</button><button class="btn warn hidden" id="stop" onclick="stopAll(true)">■ 回答終了</button></div><p class="muted small" id="micInfo">マイクの許可が必要です。Android Chromeでは文字起こし・自動採点を優先するため、回答音声の録音保存は行いません。</p><audio id="playback" controls class="hidden" style="width:100%;margin-top:10px"></audio></section>
 <section class="panel hidden" id="results"><div class="row between"><h2>練習結果</h2><span class="pill">参考採点・公式評価ではありません</span></div><div id="scoreContent"></div><div class="separator"></div><h3>認識された英語（修正もできます）</h3><textarea id="transcript" placeholder="音声認識が使えないときは、話した英文を入力してください。"></textarea><div class="row" style="margin-top:8px"><button class="btn ghost" onclick="rescore()">入力した英文で再採点</button><button class="btn alt" onclick="toggleModel()">解答例を表示 / 非表示</button></div><div id="modelBox" class="panelSub hidden" style="margin-top:12px"></div><p class="notice" style="margin-top:14px">音声認識の誤変換やマイクの品質により得点が変わります。発音・抑揚を本番同等に測定する機能ではありません。内容評価も簡易ルールによる推定です。</p><div class="row" style="margin-top:14px"><button class="btn green" onclick="retry()">↻ 同じ問題をやり直す</button><button class="btn" onclick="nextQuestion()">次の問題 →</button></div></section>
 <section class="panel" id="speechDiagnostics"><h3>🎤 音声認識の診断（録音なし）</h3><p class="muted">録音機能を使わず、Chromeの音声認識だけを確認します。「診断開始」を押して英語を話してください。診断中は通常の回答を開始しないでください。</p><div class="row"><button class="btn" id="diagStart" onclick="startSpeechDiagnostic()">診断開始</button><button class="btn alt" id="diagStop" onclick="stopSpeechDiagnostic()" disabled>診断終了</button></div><p class="muted" id="diagStatus" aria-live="polite">未実施</p><div class="panelSub"><b>認識された英文</b><p class="en" id="diagText" style="white-space:pre-wrap;overflow-wrap:anywhere">（まだありません）</p></div><p class="muted small" id="diagDetails" style="white-space:pre-wrap;overflow-wrap:anywhere"></p><button class="btn ghost" onclick="copySpeechDiagnostic()">診断結果をコピー</button></section><section class="panel"><details><summary>使い方・注意点</summary><p class="muted">① Partを選ぶ → ② Part Bは音声を聞いて内容を理解する（場面・質問作成タイプは画面の指示を読む） → ③「回答を開始」で声を出す → ④ 録音・文字起こしを確認 → ⑤ 改善して再挑戦。</p><p class="muted">音声合成（読み上げ）・音声認識はブラウザの機能を利用します。Chromeの音声認識はインターネット接続が必要になる場合があり、端末・設定によって動作しません。録音にはHTTPS環境（GitHub Pages等）またはlocalhostが必要です。音声データをアプリ独自のサーバーには送信しませんが、音声認識サービスにはブラウザ提供元の処理が適用される場合があります。</p><p class="muted">進捗履歴は端末内（localStorage）に保存。録音データはページを閉じると消えます。なお、公式の過去問を転載したものではなく、試験形式を参考にしたオリジナルの練習問題です。Part Cは簡易イラスト形式で、本番の公式図版とは異なります。</p><p class="muted">参考: <a class="inlineLink" href="https://www.kyoiku.metro.tokyo.lg.jp/school/content/global/esat-j" target="_blank" rel="noopener">東京都教育委員会 ESAT-J</a> · <a class="inlineLink" href="https://www.kyoiku.metro.tokyo.lg.jp/school/content/global/esat-j_qa" target="_blank" rel="noopener">令和8年度サンプルへのリンク（公式Q&A）</a></p></details></section>
 <section class="panel"><div class="row between"><h3>最近の練習記録</h3><button class="btn ghost" onclick="clearHistory()">履歴を消去</button></div><div id="history" class="muted">まだ記録はありません。</div></section><footer>非公式・個人学習用 | ESAT-J YEAR 3 の出題構成に沿った独自練習教材。採点は参考値です。公式試験を再現・保証するものではありません。</footer>
@@ -31,22 +31,27 @@ function setupRecognition(){
 }
 async function toggleRecord(){
  if(recording){stopAll(true);return}
- if(!navigator.mediaDevices?.getUserMedia){alert('録音に対応したブラウザでHTTPSのページを開いてください。');return}
+ if(window.speechSynthesis)speechSynthesis.cancel();
+ clearTimeout(scoreWait);recognized='';recognitionFinal='';recognitionInterim='';recognitionError='';recognitionStarted=false;recognitionEnded=false;audioChunks=[];
+ if(audioUrl){URL.revokeObjectURL(audioUrl);audioUrl=null}
+ $('playback').classList.add('hidden');$('playback').removeAttribute('src');
+ const android=/Android/i.test(navigator.userAgent);
  try{
-  if(window.speechSynthesis)speechSynthesis.cancel();
-  stream=await navigator.mediaDevices.getUserMedia({audio:true});
-  audioChunks=[];recognized='';recognitionFinal='';recognitionInterim='';recognitionError='';recognitionStarted=false;recognitionEnded=false;
-  if(audioUrl){URL.revokeObjectURL(audioUrl);audioUrl=null}
-  $('playback').classList.add('hidden');
-  recorder=new MediaRecorder(stream);
-  recorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
-  recorder.onstop=()=>{if(audioChunks.length){audioUrl=URL.createObjectURL(new Blob(audioChunks,{type:recorder.mimeType||'audio/webm'}));$('playback').src=audioUrl;$('playback').classList.remove('hidden')}stopStream()};
-  recorder.start();recording=true;recognition=setupRecognition();
+  // Android Chrome: MediaRecorder/getUserMedia and SpeechRecognition may compete for the mic.
+  // Prioritize recognition for automatic scoring; standalone diagnostic has confirmed it works.
+  if(!android){
+   stream=await navigator.mediaDevices.getUserMedia({audio:true});
+   recorder=new MediaRecorder(stream);
+   recorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
+   recorder.onstop=()=>{if(audioChunks.length){audioUrl=URL.createObjectURL(new Blob(audioChunks,{type:recorder.mimeType||'audio/webm'}));$('playback').src=audioUrl;$('playback').classList.remove('hidden')}stopStream()};
+   recorder.start();
+  }else{recorder=null;stream=null}
+  recording=true;recognition=setupRecognition();
   if(recognition){try{recognition.start()}catch(e){recognitionError='音声認識を開始できませんでした: '+(e.name||e.message)}}
   remaining=current().time;$('record').classList.add('hidden');$('stop').classList.remove('hidden');
-  $('status').textContent=recognitionError?recognitionError:'録音中・英語を話してください';
+  $('status').textContent=recognitionError?recognitionError:(android?'音声認識中（Androidでは自動採点を優先・録音保存なし）':'録音・音声認識中');
   updateTimer();tick=setInterval(()=>{remaining--;updateTimer();if(remaining<=0)stopAll(true)},1000);
- }catch(e){recording=false;stopStream();alert('マイクを開始できませんでした。ブラウザの許可やHTTPSを確認してください。\\n'+e.message)}
+ }catch(e){recording=false;stopStream();alert('音声入力を開始できませんでした: '+e.message)}
 }
 function updateTimer(){$('timer').textContent=`00:${String(Math.max(0,remaining)).padStart(2,'0')}`;$('progress').style.width=`${Math.min(100,100*(current().time-remaining)/current().time)}%`}
 function stopStream(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
